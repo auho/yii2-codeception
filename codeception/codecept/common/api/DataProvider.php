@@ -524,6 +524,8 @@ class DataProvider
                 $Data->param[$dk] = $dv;
             } elseif (is_callable($dv)) {
                 $Data->param[$dk] = $dv();
+            } elseif (is_null($dv)) {
+                unset($Data->param[$dk]);
             }
         }
 
