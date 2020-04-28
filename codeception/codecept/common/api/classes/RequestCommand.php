@@ -136,7 +136,7 @@ class RequestCommand
 
     public function alias($alias)
     {
-        $this->RequestCest->alias = ToolCest::extractAlias($alias);
+        $this->RequestCest->alias = array_merge($this->RequestCest->alias, ToolCest::extractAlias($alias));
 
         return $this;
     }
