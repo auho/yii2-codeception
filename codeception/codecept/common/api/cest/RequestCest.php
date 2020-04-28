@@ -63,6 +63,11 @@ class RequestCest
     public $appendBodyParam = [];
 
     /**
+     * @var array
+     */
+    public $alias = [];
+
+    /**
      * @var callable
      */
     protected $sendCallback;
@@ -87,9 +92,7 @@ class RequestCest
      */
     public function command()
     {
-        $RequestCommand = new RequestCommand($this);
-
-        return $RequestCommand;
+        return new RequestCommand($this);
     }
 
     public function paramJson()
@@ -105,9 +108,6 @@ class RequestCest
         return $this->paramFormat;
     }
 
-    /**
-     *
-     */
     public function send()
     {
         call_user_func($this->sendCallback);

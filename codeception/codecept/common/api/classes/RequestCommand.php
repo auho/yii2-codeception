@@ -133,4 +133,11 @@ class RequestCommand
 
         return $this;
     }
+
+    public function alias($alias)
+    {
+        $this->RequestCest->alias = ToolCest::extractAlias($alias);
+
+        return $this;
+    }
 }

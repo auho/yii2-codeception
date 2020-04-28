@@ -16,19 +16,81 @@ class ApiAnnotate
     /**
      * @var array   文件列表
      */
-    public static $fileList = [];
+    protected static $fileList = [];
 
     /**
      * @var array   方法列表
      */
-    public static $methodList = [];
+    protected static $methodList = [];
 
     /**
      * @var array   配置列表
      */
-    public static $iniList = [];
+    protected static $alias = [];
 
-    private $_outputPath = '';
+    /**
+     * @var string
+     */
+    protected $_outputPath = '';
+
+    /**
+     * @param TestCest $TestCest
+     * @param Data     $Data
+     *
+     * @return string
+     */
+    public function _formatAnnotateDoc(TestCest $TestCest, Data $Data)
+    {
+        return '';
+    }
+
+    /**
+     * @param TestCest $TestCest
+     * @param Data     $Data
+     */
+    public function toPhpDoc(TestCest $TestCest, Data $Data)
+    {
+        // 生成注释文件
+        list($annotateFilePath, $requestFilePath) = $this->_createCestFile($TestCest);
+
+        $this->_mergeAlias($TestCest->RequestCest->alias);
+
+        if ($this->_checkMethod($TestCest)) {
+            return;
+        }
+
+        $annotate = $this->_formatAnnotateDoc($TestCest, $Data);
+        $this->_toAnnotateDoc($annotate, $annotateFilePath);
+
+        $this->_toRequestDoc($TestCest, $Data, $requestFilePath);
+    }
+
+    /**
+     * @param $annotate
+     * @param $annotateFilePath
+     */
+    protected function _toAnnotateDoc($annotate, $annotateFilePath)
+    {
+        file_put_contents($annotateFilePath, $annotate, FILE_APPEND);
+    }
+
+    /**
+     * @param TestCest $TestCest
+     * @param Data     $Data
+     * @param          $requestFilePath
+     */
+    protected function _toRequestDoc(TestCest $TestCest, Data $Data, $requestFilePath)
+    {
+        $requestLog = '';
+        $requestLog .= $TestCest->testMethodName . "\n";
+        $requestLog .= $Data->Request->url . "\n";
+        $requestLog .= $Data->Request->debug_url . "\n";
+        $requestLog .= json_encode($Data->param, JSON_UNESCAPED_UNICODE) . "\n";
+        $requestLog .= json_encode($Data->Response->body, JSON_UNESCAPED_UNICODE) . "\n";
+        $requestLog .= "\n\n";
+
+        file_put_contents($requestFilePath, $requestLog, FILE_APPEND);
+    }
 
     /**
      * @param $iniFile
@@ -38,57 +100,67 @@ class ApiAnnotate
     public function __construct($iniFile = '')
     {
         $this->_outputPath = TESTS_BASE_PATH . DIRECTORY_SEPARATOR . 'output';
-        $this->_parseIni($iniFile);
+        $this->_parseAlias($iniFile);
     }
 
     /**
-     * 生成 php doc
-     *
      * @param TestCest $TestCest
-     * @param Data     $Data
+     *
+     * @return array
      */
-    public function toPhpDoc(TestCest $TestCest, Data $Data)
+    protected function _createCestFile(TestCest $TestCest)
     {
         // 生成注释文件
         $annotateFilePath = $this->_generateAnnotateFile($TestCest);
         $requestFilePath = $this->_generateRequestFile($TestCest);
 
-        if ($annotateFilePath) {
-            if (!in_array($TestCest->CestFile->absoluteFilePath, self::$fileList)) {
-                self::$fileList[] = $TestCest->CestFile->absoluteFilePath;
-                // 如果是第一次生成注释，清空文件
-                file_put_contents($annotateFilePath, '');
+        $this->_checkCestFile($TestCest, $annotateFilePath, $requestFilePath);
 
-                if (!empty($requestFilePath)) {
-                    file_put_contents($requestFilePath, '');
-                }
-            }
+        return [$annotateFilePath, $requestFilePath];
+    }
+
+    /**
+     * @param TestCest $TestCest
+     * @param string   $annotateFilePath
+     * @param string   $requestFilePath
+     *
+     * @return bool
+     */
+    protected function _checkCestFile(TestCest $TestCest, $annotateFilePath, $requestFilePath)
+    {
+        if (empty($annotateFilePath) || empty($requestFilePath)) {
+            return false;
         }
 
+        if (in_array($TestCest->CestFile->absoluteFilePath, self::$fileList)) {
+            return true;
+        }
+
+        // 如果是第一次生成注释，清空文件
+        self::$fileList[] = $TestCest->CestFile->absoluteFilePath;
+
+        file_put_contents($annotateFilePath, '');
+        file_put_contents($requestFilePath, '');
+
+        return true;
+    }
+
+    /**
+     * @param TestCest $TestCest
+     *
+     * @return bool
+     */
+    protected function _checkMethod(TestCest $TestCest)
+    {
         // 限制每个方法只生成一次
         $methodHash = $TestCest->CestFile->relativeFilePath . $TestCest->testMethodName;
-        if (!in_array($methodHash, self::$methodList)) {
+
+        if (in_array($methodHash, self::$methodList)) {
+            return true;
+        } else {
             self::$methodList[] = $methodHash;
 
-            $annotate = '';
-            $annotate .= $this->_formatHeader();
-            $annotate .= $this->_formatTitle($TestCest->testMethodName);
-            $annotate .= $this->_formatUrl($TestCest->RequestCest->url);
-            $annotate .= $this->_formatMethod($TestCest->RequestCest->method);
-            $annotate .= $this->_formatInput($Data->param);
-            $annotate .= $this->_formatOutput($Data->Response->body);
-            $annotate .= $this->_formatFooter();
-
-            file_put_contents($annotateFilePath, $annotate, FILE_APPEND);
-
-            $requestLog = '';
-            $requestLog .= $TestCest->testMethodName . "\n";
-            $requestLog .= $Data->Request->url . "\n";
-            $requestLog .= $Data->Request->debug_url . "\n";
-            $requestLog .= json_encode($Data->Response->body, JSON_UNESCAPED_UNICODE) . "\n";
-            $requestLog .= "\n\n";
-
-            file_put_contents($requestFilePath, $requestLog, FILE_APPEND);
+            return false;
         }
     }
 
@@ -97,17 +169,17 @@ class ApiAnnotate
      *
      * @throws \Exception
      */
-    protected function _parseIni($iniFile = '')
+    protected function _parseAlias($iniFile = '')
     {
         if (!is_file($iniFile)) {
-            $iniFile = TESTS_BASE_PATH . DIRECTORY_SEPARATOR . 'ini' . DIRECTORY_SEPARATOR . 'field_name.ini';
+            $iniFile = TESTS_BASE_PATH . DIRECTORY_SEPARATOR . 'ini' . DIRECTORY_SEPARATOR . 'alias.ini';
         }
 
         if (!is_file($iniFile)) {
-            self::$iniList = [];
+            self::$alias = [];
         } else {
-            if (empty(self::$iniList)) {
-                self::$iniList = parse_ini_file($iniFile);
+            if (empty(self::$alias)) {
+                self::$alias = parse_ini_file($iniFile);
             }
         }
     }
@@ -126,7 +198,7 @@ class ApiAnnotate
             return $annotateFilePath;
         }
 
-        $res = $this->mkDir($annotateDirPath);
+        $res = $this->_mkDir($annotateDirPath);
         if ($res) {
             file_put_contents($annotateFilePath, '');
 
@@ -150,7 +222,7 @@ class ApiAnnotate
             return $requestFilePath;
         }
 
-        $res = $this->mkDir($requestDirPath);
+        $res = $this->_mkDir($requestDirPath);
         if ($res) {
             file_put_contents($requestFilePath, '');
 
@@ -161,197 +233,29 @@ class ApiAnnotate
     }
 
     /**
-     * @return string
+     * @param $data
+     *
+     * @return array
      */
-    public function _formatHeader()
+    protected function _slimData($data)
     {
-        return <<<HEADER
-/**\n
-HEADER;
-
-    }
-
-    /**
-     * 格式化标题
-     *
-     * @param string $title
-     *
-     * @return string
-     */
-    public function _formatTitle($title)
-    {
-        return <<<TITLE
- * ===={$title}\n
-TITLE;
-
-    }
-
-    /**
-     * 格式化url
-     *
-     * @param string $url
-     *
-     * @return string
-     */
-    protected function _formatUrl($url)
-    {
-        if (substr($url, 0, 7) === 'http://') {
-            $url = substr($url, 7);
-            $url = substr($url, strpos($url, '/'));
-        } elseif (substr($url, 0, 8) === 'https://') {
-            $url = substr($url, 8);
-            $url = substr($url, strpos($url, '/'));
-        }
-
-        $url = str_pad('', 27, ' ', STR_PAD_RIGHT) . $url;
-
-        $str = <<<URL
- *
- * @url{$url}\n
-URL;
-
-        return $str;
-    }
-
-    /**
-     * 格式化请求方法
-     *
-     * @param string $method
-     *
-     * @return string
-     */
-    protected function _formatMethod($method)
-    {
-        $method = str_pad('', 24, ' ', STR_PAD_RIGHT) . $method;
-
-        $str = <<<METHOD
- *
- * @method{$method}\n
-METHOD;
-
-        return $str;
-    }
-
-    /**
-     * 格式化请求参数
-     *
-     * @param array|string $param
-     *
-     * @return string
-     */
-    protected function _formatInput($param)
-    {
-        if (is_string($param)) {
-            $param = json_decode($param, true);
-        }
-
-        $return = $this->_formatPhpDoc($param, 3);
-        $str = <<<INPUT
- *
- * @参数
- *  |字段|描述|是否必须|
- *  |--------|--------|--------|
-
-INPUT;
-
-        return $str . $return;
-    }
-
-    /**
-     * 格式化返回字段
-     *
-     * @param array|string $output
-     *
-     * @return string
-     */
-    protected function _formatOutput($output)
-    {
-        if (is_string($output)) {
-            $output = json_decode($output, true);
-        }
-
-        $return = $this->_formatPhpDoc($output['data']);
-        $str = <<<OUTPUT
- *
- * @返回
- *  |字段|描述|是否必须|
- *  |--------|--------|--------|
-
-OUTPUT;
-        $strEnd = <<<OUTPUT
- *
-
-OUTPUT;
-
-        return $str . $return . $strEnd;
-    }
-
-    /**
-     * @return string
-     */
-    protected function _formatFooter()
-    {
-        return <<<FOOTER
- * @return array
- */\n\n\n
-FOOTER;
-
-    }
-
-    /**
-     * 格式化成 markdown 形式的 php doc
-     *
-     * @param array|string $data   被格式化的数据
-     * @param int          $maxCol 表格最大列
-     * @param int          $indent
-     *
-     * @return string
-     */
-    protected function _formatPhpDoc($data, $maxCol = 2, $indent = -2)
-    {
-        $indent += 1;
-
-        $return = '';
         if (is_array($data)) {
             foreach ($data as $key => $value) {
                 if (is_array($value)) {
-                    if ($key === 0) {
-                        $return .= $this->_formatPhpDoc($value, $maxCol, $indent - 1);
-                    } elseif ($key > 0) {
+                    if (is_integer($key)) {
+                        if ($key < 2) {
+                            $data[$key] = $this->_slimData($value);
+                        } else {
+                            unset($data[$key]);
+                        }
                     } else {
-                        $return .= $this->_formatPhpDoc($key, $maxCol, $indent);
-                        $return .= $this->_formatPhpDoc($value, $maxCol, $indent);
-                    }
-                } else {
-                    if (is_numeric($key)) {
-
-                    } else {
-                        $return .= $this->_formatPhpDoc($key, $maxCol, $indent);
+                        $data[$key] = $this->_slimData($value);
                     }
                 }
             }
-        } else {
-            $indentString = str_repeat('--', $indent);
-            $dataLength = strlen("{$indentString}$data");
-            $dataAlias = $this->_getAliasFrommIniByKey($data);
-
-            $return = " *  |{$indentString}{$data}" . str_pad('', 24 - $dataLength, ' ', STR_PAD_RIGHT) . "|" . $dataAlias;
-            if ($maxCol > 2) {
-                $pad = 12;
-                $dataAliasLength = (strlen($dataAlias) + mb_strlen($dataAlias, 'UTF8')) / 4;
-                if (($pad - $dataAliasLength) > 3) {
-                    $pad = $pad - $dataAliasLength;
-                } else {
-                    $pad = 3;
-                }
-
-                $return .= str_pad('', $pad, ' ', STR_PAD_RIGHT) . "|是";
-            }
-
-            $return .= "\n";
         }
 
-        return $return;
+        return $data;
     }
 
     /**
@@ -361,9 +265,17 @@ FOOTER;
      *
      * @return null
      */
-    private function _getAliasFrommIniByKey($key)
+    protected function _getAlia($key)
     {
-        return isset(self::$iniList[$key]) ? self::$iniList[$key] : '';
+        return isset(self::$alias[$key]) ? self::$alias[$key] : '';
+    }
+
+    /**
+     * @param array $alias
+     */
+    protected function _mergeAlias($alias)
+    {
+        self::$alias = array_merge(self::$alias, $alias);
     }
 
     /**
@@ -373,7 +285,7 @@ FOOTER;
      *
      * @return bool
      */
-    private static function mkDir($path)
+    protected static function _mkDir($path)
     {
         //判断目录存在否，存在给出提示，不存在则创建目录
         if (is_dir($path)) {

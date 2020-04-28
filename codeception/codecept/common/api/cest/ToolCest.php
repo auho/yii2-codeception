@@ -42,4 +42,32 @@ class ToolCest
 
         return array_merge($data, $appendParam);
     }
+
+    /**
+     * @param object|array $Form
+     *
+     * @return array
+     * @throws \ReflectionException
+     */
+    public static function extractAlias($Form)
+    {
+        $alias = [];
+        if (is_object($Form)) {
+            $Ref = new \ReflectionClass(get_class($Form));
+            $properties = $Ref->getProperties(\ReflectionProperty::IS_PUBLIC);
+            foreach ($properties as $property) {
+                $res = [];
+                $doc = $property->getDocComment();
+
+                preg_match('/@var[\s]+([^\s\n\r]+)\s+([^\n\r]+)\s*\n/m', $doc, $res);
+                if (count($res) == 3) {
+                    $alias[$property->name] = $res[2];
+                }
+            }
+        } elseif (is_array($Form)) {
+            $alias = $Form;
+        }
+
+        return $alias;
+    }
 }
