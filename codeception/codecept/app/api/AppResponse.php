@@ -29,15 +29,7 @@ class AppResponse
      */
     public function after(\ApiTester $ApiTester, Response $Response, $type)
     {
-        $Response->body = $ApiTester->grabDataFromResponseByJsonPath("$..")[0];
-
-        try {
-            $Response->code = $Response->body['code'];
-            $Response->error = $Response->body['error'];
-            $Response->data = $Response->body['data'];
-        } catch (\Exception $e) {
-            throw $e;
-        }
+        self::setResponse($ApiTester, $Response);
 
         if ($type) {
             $ApiTester->assertEquals(self::CODE_SUCCESS, $Response->code, $Response->error);
@@ -47,6 +39,25 @@ class AppResponse
             $ApiTester->assertNotEquals(self::CODE_SUCCESS, $Response->code, $Response->error);
 
             $Response->isSuccess = true;
+        }
+    }
+
+    /**
+     * @param \ApiTester $ApiTester
+     * @param Response   $Response
+     *
+     * @throws \Exception
+     */
+    public static function setResponse(\ApiTester $ApiTester, Response $Response)
+    {
+        $Response->body = $ApiTester->grabDataFromResponseByJsonPath("$..")[0];
+
+        try {
+            $Response->code = $Response->body['code'];
+            $Response->error = $Response->body['error'];
+            $Response->data = $Response->body['data'];
+        } catch (\Exception $e) {
+            throw $e;
         }
     }
 }
