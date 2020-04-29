@@ -102,9 +102,11 @@ class TestCest
         $this->_createRequestCest();
     }
 
-    public function beforeTest()
+    public function resetTest()
     {
+        $this->_resetProviderCest();
         $this->_resetDataProvider();
+        $this->_resetRequestCest();
     }
 
     /**
@@ -250,15 +252,6 @@ class TestCest
         $ApiDataTest = new ApiDataTest();
         $ApiDataTest->doTestTest($this);
 
-        $this->afterDataTest();
-    }
-
-    /**
-     *
-     */
-    protected function afterDataTest()
-    {
-        $this->_resetDataProvider();
-        $this->_resetRequestCest();
+        $this->resetTest();
     }
 }

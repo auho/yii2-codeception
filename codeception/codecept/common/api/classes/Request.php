@@ -191,7 +191,7 @@ class Request
 
         $joiner = false === strpos($this->url, '?') ? '?' : '&';
         $this->debug_url = $this->url . $joiner . $phpDebugParam;
-        $ApiTester->wantToTest($this->wantToTestString . ' ' . $this->debug_url . PHP_EOL . PHP_EOL . $bodyParamJson);
+        $ApiTester->wantToTest($this->wantToTestString . ' ' . $this->debug_url . PHP_EOL . $bodyParamJson);
 
         if ($this->bodyParamFormat == 'json') {
             $this->bodyParam = json_encode($this->bodyParam, JSON_UNESCAPED_UNICODE);

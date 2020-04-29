@@ -62,7 +62,7 @@ class ApiBaseCest
 
     public function _before($test)
     {
-        $this->TestCest->beforeTest();
+        $this->TestCest->resetTest();
     }
 
     /**

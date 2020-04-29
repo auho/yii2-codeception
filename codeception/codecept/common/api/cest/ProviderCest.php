@@ -57,8 +57,8 @@ class ProviderCest
     }
 
     /**
-     * @param string|array $name   参数
-     * @param array        $values 参数的值
+     * @param string|array|callable $name   参数
+     * @param array                 $values 参数的值
      *
      * 单个参数：
      *  $name   'username'
@@ -78,7 +78,7 @@ class ProviderCest
      */
     public function field($name, $values = null)
     {
-        if (empty($name) || empty($values)) {
+        if (empty($name)) {
             throw new \Exception("参数为空");
         }
 
@@ -110,7 +110,7 @@ class ProviderCest
      *      ]
      * ]
      *
-     * @param array $list
+     * @param array|callable $list
      *
      * @return $this
      * @throws \Exception
