@@ -97,8 +97,6 @@ class DataProvider
      */
     public function generateParam(Data $Data)
     {
-        $Data->repeatNum = (int)$Data->repeatNum;
-
         return $this->_executeCallableList($Data);
     }
 
@@ -157,7 +155,7 @@ class DataProvider
         $Data->passingCallableList = $Provider->passingCallbackList;
         $Data->noPassingCallableList = $Provider->noPassingCallbackList;
         $Data->isReverse = $Provider->isReverse;
-        $Data->repeatNum = $Provider->repeatName;
+        $Data->repeatNum = (int)$Provider->repeatName;
         $Data->responseCallable = $Provider->responseCallable;
 
         $wantString = ' 测试';

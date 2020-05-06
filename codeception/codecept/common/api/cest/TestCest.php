@@ -251,7 +251,5 @@ class TestCest
     {
         $ApiDataTest = new ApiDataTest();
         $ApiDataTest->doTestTest($this);
-
-        $this->resetTest();
     }
 }

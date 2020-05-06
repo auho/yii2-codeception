@@ -34,9 +34,8 @@ class ApiDataTest
     {
         $dataList = $TestCest->DataProvider->getDataList();
 
+        $wantTo = '';
         foreach ($dataList as $key => $Data) {
-            $TestCest->DataProvider->generateParam($Data);
-
             $maxRepeat = 1;
 
             // 重复测试
@@ -45,24 +44,27 @@ class ApiDataTest
             }
 
             do {
-                $this->_executeTest($TestCest, $Data);
+                $TestCest->DataProvider->generateParam($Data);
+                $wantTo .= $this->_executeTest($TestCest, $Data);
                 $maxRepeat--;
 
                 // 如果反转测试（两次测试数据相同）
                 if ($Data->isReverse) {
                     $ReverseData = clone $Data;
                     $ReverseData->type = true === $ReverseData->type ? false : true;
-                    $this->_executeTest($TestCest, $ReverseData);
+                    $wantTo .= $this->_executeTest($TestCest, $ReverseData);
                 }
-
             } while ($maxRepeat > 0);
         }
+
+        $TestCest->ApiTester->wantToTest($wantTo);
     }
 
     /**
      * @param TestCest $TestCest
      * @param Data     $Data
      *
+     * @return string
      * @throws \Exception
      */
     protected function _executeTest(TestCest $TestCest, Data $Data)
@@ -104,7 +106,11 @@ class ApiDataTest
 
         if ($Data->type && $Data->Response->isSuccess) {
             $TestCest->ApiAnnotate->toPhpDoc($TestCest, $Data);
+
+            return $Data->Request->getWantTo();
         }
+
+        return '';
     }
 
     /**

@@ -65,6 +65,11 @@ class ApiBaseCest
         $this->TestCest->resetTest();
     }
 
+    public function _after($test)
+    {
+        $this->TestCest->resetTest();
+    }
+
     /**
      * @return ProviderCest
      */

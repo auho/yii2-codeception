@@ -87,6 +87,11 @@ class Request
     protected $_appendBodyParam = [];
 
     /**
+     * @var string
+     */
+    protected $wantTo = '';
+
+    /**
      * 追加 URL 请求参数
      *
      * @param array|callable $append
@@ -143,6 +148,14 @@ class Request
     }
 
     /**
+     * @return string
+     */
+    public function getWantTo()
+    {
+        return $this->wantTo;
+    }
+
+    /**
      * @param \ApiTester $ApiTester
      */
     protected function _SKIP(\ApiTester $ApiTester)
@@ -164,7 +177,7 @@ class Request
         $joiner = false === strpos($this->url, '?') ? '?' : '&';
 
         $this->debug_url = $this->url . $joiner . http_build_query($this->urlParam);
-        $ApiTester->wantToTest($this->wantToTestString . ' ' . $this->debug_url);
+        $this->wantTo = $this->wantToTestString . "\n" . $this->debug_url . "\n";
 
         $ApiTester->sendGET($this->url, $this->urlParam);
     }
@@ -191,7 +204,7 @@ class Request
 
         $joiner = false === strpos($this->url, '?') ? '?' : '&';
         $this->debug_url = $this->url . $joiner . $phpDebugParam;
-        $ApiTester->wantToTest($this->wantToTestString . ' ' . $this->debug_url . PHP_EOL . $bodyParamJson);
+        $this->wantTo = $this->wantToTestString . "\n" . $this->debug_url . PHP_EOL . $bodyParamJson . "\n";
 
         if ($this->bodyParamFormat == 'json') {
             $this->bodyParam = json_encode($this->bodyParam, JSON_UNESCAPED_UNICODE);
