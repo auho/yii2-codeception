@@ -152,6 +152,7 @@ class DataProvider
         $Data->dataId = $this->dataId;
         $Data->data = $Provider->data;
         $Data->type = $Provider->type;
+        $Data->changeRequestCallbackList = $Provider->changeRequestCallbackList;
         $Data->passingCallableList = $Provider->passingCallbackList;
         $Data->noPassingCallableList = $Provider->noPassingCallbackList;
         $Data->isReverse = $Provider->isReverse;

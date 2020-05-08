@@ -77,6 +77,11 @@ class Request
     protected $bodyParam = [];
 
     /**
+     * @var array
+     */
+    protected $_appendHeader = [];
+
+    /**
      * @var array   追加的 url 参数
      */
     protected $_appendUrlParam = [];
@@ -90,6 +95,23 @@ class Request
      * @var string
      */
     protected $wantTo = '';
+
+    /**
+     * @param $append
+     *
+     * @return null
+     * @throws \Exception
+     */
+    public function appendHeader($append)
+    {
+        if (empty($append)) {
+            return null;
+        }
+
+        $this->_appendHeader = ToolCest::appendParam($this->_appendHeader, $append);
+
+        return null;
+    }
 
     /**
      * 追加 URL 请求参数
@@ -138,6 +160,8 @@ class Request
             $ApiTester->haveHttpHeader('Content-Type', 'application/json');
         }
 
+        $this->_buildHeader($ApiTester);
+
         if (self::METHOD_GET == $this->method) {
             $this->_GET($ApiTester);
         } elseif (self::METHOD_POST == $this->method) {
@@ -170,18 +194,21 @@ class Request
     {
         $this->urlParam = $this->param;
 
-        if (!empty($this->_appendUrlParam)) {
-            $this->urlParam = array_merge($this->urlParam, $this->_appendUrlParam);
-        }
+        $this->_buildUrlParam();
 
         $joiner = false === strpos($this->url, '?') ? '?' : '&';
 
-        $this->debug_url = $this->url . $joiner . http_build_query($this->urlParam);
-        $this->wantTo = $this->wantToTestString . "\n" . $this->debug_url . "\n";
+        $this->url = $this->url . $joiner . http_build_query($this->urlParam);
+        $this->debug_url = $this->url;
+
+        $this->wantTo = $this->wantToTestString . PHP_EOL . $this->url;
+        if (!empty($this->_appendHeader)) {
+            $this->wantTo .= PHP_EOL . json_encode($this->_appendHeader, JSON_UNESCAPED_UNICODE);
+        }
 
         $ApiTester->wantToTest($this->wantTo);
 
-        $ApiTester->sendGET($this->url, $this->urlParam);
+        $ApiTester->sendAjaxGetRequest($this->url);
     }
 
     /**
@@ -191,22 +218,25 @@ class Request
     {
         $this->bodyParam = $this->param;
 
+        $this->_buildBodyParam();
+
         $bodyParamJson = json_encode($this->bodyParam, JSON_UNESCAPED_UNICODE);
         $phpDebugParam = '_php_debug_param=' . urlencode($bodyParamJson);
 
-        if (!empty($this->_appendUrlParam)) {
-            $this->urlParam = array_merge($this->urlParam, $this->_appendUrlParam);
-        }
+        $this->_buildUrlParam();
 
-        $this->url .= false === strpos($this->url, '?') ? '?' : '&';
+        $this->url .= $this->_buildUrlSymbol($this->url);
 
         if (!empty($this->urlParam)) {
             $this->url .= http_build_query($this->urlParam);
         }
 
-        $joiner = false === strpos($this->url, '?') ? '?' : '&';
+        $joiner = $this->_buildUrlSymbol($this->url);
         $this->debug_url = $this->url . $joiner . $phpDebugParam;
-        $this->wantTo = $this->wantToTestString . "\n" . $this->debug_url . PHP_EOL . $bodyParamJson . "\n";
+        $this->wantTo = $this->wantToTestString . PHP_EOL . $this->debug_url . PHP_EOL . $bodyParamJson;
+        if (!empty($this->_appendHeader)) {
+            $this->wantTo .= PHP_EOL . json_encode($this->_appendHeader, JSON_UNESCAPED_UNICODE);
+        }
 
         $ApiTester->wantToTest($this->wantTo);
 
@@ -214,6 +244,32 @@ class Request
             $this->bodyParam = json_encode($this->bodyParam, JSON_UNESCAPED_UNICODE);
         }
 
-        $ApiTester->sendPOST($this->url, $this->bodyParam);
+        $ApiTester->sendAjaxPostRequest($this->url, $this->bodyParam);
+    }
+
+    protected function _buildHeader(\ApiTester $I)
+    {
+        foreach ($this->_appendHeader as $name => $value) {
+            $I->setHeader($name, $value);
+        }
+    }
+
+    protected function _buildUrlParam()
+    {
+        if (!empty($this->_appendUrlParam)) {
+            $this->urlParam = array_merge($this->urlParam, $this->_appendUrlParam);
+        }
+    }
+
+    protected function _buildBodyParam()
+    {
+        if (!empty($this->_appendBodyParam)) {
+            $this->bodyParam = array_merge($this->bodyParam, $this->_appendBodyParam);
+        }
+    }
+
+    protected function _buildUrlSymbol($url)
+    {
+        return false === strpos($url, '?') ? '?' : '&';
     }
 }

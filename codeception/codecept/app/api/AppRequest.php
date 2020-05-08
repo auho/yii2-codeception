@@ -15,7 +15,7 @@ use codecept\common\api\classes\Request;
  *
  * @package codecept\app\api
  */
-class AppRequest extends Request
+class AppRequest
 {
     public function before(Request $Request)
     {

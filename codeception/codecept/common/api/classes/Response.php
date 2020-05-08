@@ -56,7 +56,8 @@ class Response
      */
     public function doResponse(TestCest $TestCest, Data $Data)
     {
-        $this->response = $TestCest->ApiTester->grabResponse();
+        $this->response = $TestCest->ApiTester->grabPageSource();
+        $this->body = json_decode($this->response, true);
 
         if ($Data->Request->method == Request::METHOD_SKIP) {
             return null;

@@ -63,6 +63,10 @@ class ApiBaseCest
     public function _before($test)
     {
         $this->TestCest->resetTest();
+
+        if (method_exists($this, '_beforeTest')) {
+            $this->_beforeTest();
+        }
     }
 
     public function _after($test)

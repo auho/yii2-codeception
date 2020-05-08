@@ -65,6 +65,11 @@ class Data
     public $wantString = '';
 
     /**
+     * @var callable[]  更改 request
+     */
+    public $changeRequestCallbackList = [];
+
+    /**
      * @var callable[]    通过时的回调方法
      */
     public $passingCallableList = [];

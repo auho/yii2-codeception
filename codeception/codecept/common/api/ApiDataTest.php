@@ -45,7 +45,11 @@ class ApiDataTest
 
             do {
                 $TestCest->DataProvider->generateParam($Data);
-                $wantTo .= $this->_executeTest($TestCest, $Data);
+                $want = $this->_executeTest($TestCest, $Data);
+                if (!empty($want)) {
+                    $wantTo .= $want . "\n";
+                }
+
                 $maxRepeat--;
 
                 // 如果反转测试（两次测试数据相同）
@@ -82,7 +86,9 @@ class ApiDataTest
         // 运行 AppRequest 前置方法
         $TestCest->AppRequest->before($Data->Request);
 
-        // 执行前置回调方法
+        $this->_executeCallable($TestCest, $Data, $Data->changeRequestCallbackList);
+
+        // 执行 request 前置回调方法
         $this->_executeCallable($TestCest, $Data, $TestCest->RequestCest->beforeRequestCallableList);
 
         // 发送请求

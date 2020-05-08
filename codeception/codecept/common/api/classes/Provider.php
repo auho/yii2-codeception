@@ -37,12 +37,17 @@ class Provider
     public $type;
 
     /**
-     * @var callable[]    通过时回调函数
+     * @var callable[]  更改 request
+     */
+    public $changeRequestCallbackList = [];
+
+    /**
+     * @var callable[]  通过时回调函数
      */
     public $passingCallbackList = [];
 
     /**
-     * @var callable[]    没通过是回调函数
+     * @var callable[]  没通过是回调函数
      */
     public $noPassingCallbackList = [];
 

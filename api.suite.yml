@@ -5,4 +5,6 @@ modules:
     - Asserts
     - REST:
         depends: PhpBrowser
+    - PhpBrowser:
+        url: ''
     - \Helper\Api

@@ -253,6 +253,18 @@ class ProviderCest
     }
 
     /**
+     * @param callable $callback
+     *
+     * @return $this
+     */
+    public function changeRequest($callback)
+    {
+        $this->Provider->changeRequestCallbackList[] = $callback;
+
+        return $this;
+    }
+
+    /**
      *
      */
     private function _pushProvider()

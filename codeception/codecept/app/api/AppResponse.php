@@ -50,8 +50,6 @@ class AppResponse
      */
     public static function setResponse(\ApiTester $ApiTester, Response $Response)
     {
-        $Response->body = $ApiTester->grabDataFromResponseByJsonPath("$..")[0];
-
         try {
             $Response->code = $Response->body['code'];
             $Response->error = $Response->body['error'];
