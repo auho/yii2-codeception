@@ -40,7 +40,7 @@ class ApiDataTest
 
             // 重复测试
             if ($Data->repeatNum > 0) {
-                $maxRepeat = $Data->repeatNum;
+                $maxRepeat = $Data->repeatNum + 1;
             }
 
             do {
