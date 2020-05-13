@@ -191,7 +191,7 @@ class ApiAnnotate
      */
     protected function _generateAnnotateFile(TestCest $Cest)
     {
-        $annotateDirPath = $this->_outputPath . DIRECTORY_SEPARATOR . 'md' . DIRECTORY_SEPARATOR . $Cest->CestFile->relativeFilePath;
+        $annotateDirPath = $this->_outputPath . DIRECTORY_SEPARATOR . 'md' . DIRECTORY_SEPARATOR . $Cest->CestFile->relativeDir;
         $annotateFilePath = $annotateDirPath . DIRECTORY_SEPARATOR . $Cest->CestFile->fileName . '.md.php';
 
         if (is_file($annotateFilePath)) {
@@ -215,7 +215,7 @@ class ApiAnnotate
      */
     protected function _generateRequestFile(TestCest $Cest)
     {
-        $requestDirPath = $this->_outputPath . DIRECTORY_SEPARATOR . 'log' . DIRECTORY_SEPARATOR . $Cest->CestFile->relativeFilePath;
+        $requestDirPath = $this->_outputPath . DIRECTORY_SEPARATOR . 'log' . DIRECTORY_SEPARATOR . $Cest->CestFile->relativeDir;
         $requestFilePath = $requestDirPath . DIRECTORY_SEPARATOR . $Cest->CestFile->fileName . '.log';
 
         if (is_file($requestFilePath)) {

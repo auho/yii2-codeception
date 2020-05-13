@@ -47,7 +47,7 @@ class ApiDataTest
                 $TestCest->DataProvider->generateParam($Data);
                 $want = $this->_executeTest($TestCest, $Data);
                 if (!empty($want)) {
-                    $wantTo .= $want . "\n";
+                    $wantTo .= $TestCest->testMethodName . ' ' . $want . "\n";
                 }
 
                 $maxRepeat--;

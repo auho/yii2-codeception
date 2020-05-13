@@ -71,6 +71,16 @@ class TestCest
     public $testMethodName = '';
 
     /**
+     * @var string
+     */
+    public $groupName = '';
+
+    /**
+     * @var string
+     */
+    public $apiName = '';
+
+    /**
      * @var ProviderCest
      */
     protected $ProviderCest;
@@ -123,20 +133,25 @@ class TestCest
      * @param \ApiTester $ApiTester
      *
      * @return RequestCommand
+     * @throws \ReflectionException
      */
     public function request(\ApiTester $ApiTester)
     {
         $this->ApiTester = $ApiTester;
 
-        $debugBacktrace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 3);
+        $RefScenario = (new \ReflectionClass($ApiTester))->getProperty('scenario');
+        $RefScenario->setAccessible(true);
+        $Scenario = $RefScenario->getValue($ApiTester);
 
-        $this->testMethodName = $debugBacktrace[2]['function'];
-        $this->testMethodName = substr($this->testMethodName, 6);
+        $RefTest = (new \ReflectionClass($Scenario))->getProperty('test');
+        $RefTest->setAccessible(true);
+        $Test = $RefTest->getValue($Scenario);
 
-        $this->testClassName = $debugBacktrace[2]['class'];
-        $this->testClassName = substr($this->testClassName, 0, strlen($this->testClassName) - 4);
+        $RefTestMethod = (new \ReflectionClass($Test))->getProperty('testMethod');
+        $RefTestMethod->setAccessible(true);
+        $this->testMethodName = $RefTestMethod->getValue($Test);
 
-        return $this->RequestCest->command();
+        return $this->RequestCest->command()->groupName($this->Cest->groupName)->apiName(str_replace('action', '', $this->testMethodName));
     }
 
     /**
@@ -197,12 +212,15 @@ class TestCest
         $Reflection = new \ReflectionClass($Cest);
         $filePath = $Reflection->getFileName();
         $this->CestFile = new CestFile($filePath);
+        $this->testClassName = $Reflection->getName();
 
         if (!empty($this->Cest->ApiConfig->app_request)) {
             $this->AppRequest = new $this->Cest->ApiConfig->app_request();
         } else {
             $this->AppRequest = new AppRequest();
         }
+
+        $this->AppRequest->init();
 
         if (!empty($this->Cest->ApiConfig->app_response)) {
             $this->AppResponse = new $this->Cest->ApiConfig->app_response();

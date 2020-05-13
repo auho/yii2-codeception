@@ -24,12 +24,13 @@ class ApiAnnotateApiDoc extends ApiAnnotate
         $annotate = '';
         $annotate .= $this->_formatHeader();
         $annotate .= $this->_formatApi(
-            $TestCest->testClassName,
-            $TestCest->testMethodName,
+            $TestCest->RequestCest->groupName,
+            $TestCest->RequestCest->apiName,
             $TestCest->RequestCest->url,
             $TestCest->RequestCest->title,
             $TestCest->RequestCest->method
         );
+
         $annotate .= $this->_formatParam($Data->param);
         $annotate .= $this->_formatParamExample($Data->param);
         $annotate .= $this->_formatResponse($Data->Response->data);
@@ -137,6 +138,10 @@ RESPONSE;
 
     protected function _formatParamExample($data)
     {
+        if (empty($data)) {
+            return '';
+        }
+
         $data = $this->_slimData($data);
         $string = json_encode($data, JSON_UNESCAPED_UNICODE);
 

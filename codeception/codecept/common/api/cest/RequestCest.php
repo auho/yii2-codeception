@@ -68,6 +68,16 @@ class RequestCest
     public $alias = [];
 
     /**
+     * @var string
+     */
+    public $groupName = '';
+
+    /**
+     * @var string
+     */
+    public $apiName = '';
+
+    /**
      * @var callable
      */
     protected $sendCallback;

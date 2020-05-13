@@ -27,6 +27,11 @@ class CestFile
     public $relativeFilePath = '';
 
     /**
+     * @var string
+     */
+    public $relativeDir = '';
+
+    /**
      * @var string  文件名称
      */
     public $fileName = '';
@@ -52,6 +57,6 @@ class CestFile
 
         $this->fileName = substr($this->relativeFilePath, strripos($this->relativeFilePath, DIRECTORY_SEPARATOR) + 1);
 
-        $this->relativeFilePath = substr($this->relativeFilePath, 0, strripos($this->relativeFilePath, DIRECTORY_SEPARATOR));
+        $this->relativeDir = substr($this->relativeFilePath, 0, strripos($this->relativeFilePath, DIRECTORY_SEPARATOR));
     }
 }

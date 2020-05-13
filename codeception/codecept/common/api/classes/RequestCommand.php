@@ -32,6 +32,9 @@ class RequestCommand
         $this->RequestCest = $RequestCest;
     }
 
+    /**
+     *
+     */
     public function GET()
     {
         $this->RequestCest->method = Request::METHOD_GET;
@@ -39,6 +42,9 @@ class RequestCommand
         $this->send();
     }
 
+    /**
+     *
+     */
     public function POST()
     {
         $this->RequestCest->method = Request::METHOD_POST;
@@ -46,12 +52,18 @@ class RequestCommand
         $this->send();
     }
 
+    /**
+     *
+     */
     public function PostViaJson()
     {
         $this->RequestCest->paramJson();
         $this->POST();
     }
 
+    /**
+     *
+     */
     public function SKIP()
     {
         $this->RequestCest->method = Request::METHOD_SKIP;
@@ -59,11 +71,20 @@ class RequestCommand
         $this->send();
     }
 
+    /**
+     *
+     */
     protected function send()
     {
         $this->RequestCest->send();
     }
 
+    /**
+     * @param        $url
+     * @param string $title
+     *
+     * @return $this
+     */
     public function url($url, $title = '')
     {
         $this->RequestCest->url = $url;
@@ -72,6 +93,12 @@ class RequestCommand
         return $this;
     }
 
+    /**
+     * @param $data
+     *
+     * @return $this
+     * @throws \Exception
+     */
     public function appendUrlParam($data)
     {
         $this->RequestCest->appendUrlParam = ToolCest::appendParam($this->RequestCest->appendUrlParam, $data);
@@ -79,6 +106,12 @@ class RequestCommand
         return $this;
     }
 
+    /**
+     * @param $data
+     *
+     * @return $this
+     * @throws \Exception
+     */
     public function appendBodyParam($data)
     {
         $this->RequestCest->appendBodyParam = ToolCest::appendParam($this->RequestCest->appendBodyParam, $data);
@@ -134,9 +167,39 @@ class RequestCommand
         return $this;
     }
 
+    /**
+     * @param $alias
+     *
+     * @return $this
+     * @throws \ReflectionException
+     */
     public function alias($alias)
     {
         $this->RequestCest->alias = array_merge($this->RequestCest->alias, ToolCest::extractAlias($alias));
+
+        return $this;
+    }
+
+    /**
+     * @param $name
+     *
+     * @return $this
+     */
+    public function groupName($name)
+    {
+        $this->RequestCest->groupName = $name;
+
+        return $this;
+    }
+
+    /**
+     * @param $name
+     *
+     * @return $this
+     */
+    public function apiName($name)
+    {
+        $this->RequestCest->apiName = $name;
 
         return $this;
     }

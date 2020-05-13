@@ -33,6 +33,11 @@ class ApiBaseCest
     public $ApiConfig;
 
     /**
+     * @var string
+     */
+    public $groupName = '';
+
+    /**
      * @inheritdoc
      */
     public function __construct()
@@ -121,7 +126,8 @@ class ApiBaseCest
      *
      * @param ApiTester $ApiTester
      *
-     * @return \codecept\common\api\classes\RequestCommand
+     * @return classes\RequestCommand
+     * @throws \ReflectionException
      */
     protected function request(ApiTester $ApiTester)
     {
