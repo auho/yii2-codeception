@@ -151,7 +151,9 @@ class TestCest
         $RefTestMethod->setAccessible(true);
         $this->testMethodName = $RefTestMethod->getValue($Test);
 
-        return $this->RequestCest->command()->groupName($this->Cest->groupName)->apiName(str_replace('action', '', $this->testMethodName));
+        return $this->RequestCest->command()
+            ->groupName($this->Cest->groupName)
+            ->apiName($this->testClassName . '-' . str_replace('action', '', $this->testMethodName));
     }
 
     /**

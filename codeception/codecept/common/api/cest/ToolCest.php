@@ -63,6 +63,22 @@ class ToolCest
                 if (count($res) == 3) {
                     $alias[$property->name] = $res[2];
                 }
+
+                $O = $property->getValue($Form);
+                if (is_object($O)) {
+                    $subAlias = self::extractAlias($O);
+                    if (!empty($subAlias)) {
+                        $alias = array_merge($alias, $subAlias);
+                    }
+                } elseif (is_array($O)) {
+                    $subO = reset($O);
+                    if (is_object($subO)) {
+                        $subAlias = self::extractAlias($subO);
+                        if (!empty($subAlias)) {
+                            $alias = array_merge($alias, $subAlias);
+                        }
+                    }
+                }
             }
         } elseif (is_array($Form)) {
             $alias = $Form;

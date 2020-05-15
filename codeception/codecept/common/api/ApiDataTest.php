@@ -86,10 +86,11 @@ class ApiDataTest
         // 运行 AppRequest 前置方法
         $TestCest->AppRequest->before($Data->Request);
 
-        $this->_executeCallable($TestCest, $Data, $Data->changeRequestCallbackList);
-
         // 执行 request 前置回调方法
         $this->_executeCallable($TestCest, $Data, $TestCest->RequestCest->beforeRequestCallableList);
+
+        // 运行 data change request 前置方法
+        $this->_executeCallable($TestCest, $Data, $Data->changeRequestCallbackList);
 
         // 发送请求
         $Data->Request->sendRequest($TestCest->ApiTester);
