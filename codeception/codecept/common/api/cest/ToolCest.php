@@ -7,6 +7,12 @@
 
 namespace codecept\common\api\cest;
 
+use Exception;
+use ReflectionClass;
+use codecept\common\api\classes\ApiCestAssert;
+use codecept\common\api\classes\Data;
+use ReflectionException;
+use ReflectionProperty;
 
 class ToolCest
 {
@@ -18,7 +24,7 @@ class ToolCest
      * @param array          $parameter 参数（如果追加的数据是可执行对象，此参数为可执行对象所需要的参数）
      *
      * @return array
-     * @throws \Exception
+     * @throws Exception
      */
     public static function appendParam($data, $append, $parameter = [])
     {
@@ -29,7 +35,7 @@ class ToolCest
         } elseif (is_array($append)) {
             $appendParam = $append;
         } else {
-            throw new \Exception("参数类型不对");
+            throw new Exception("参数类型不对");
         }
 
         if (empty($appendParam)) {
@@ -37,24 +43,64 @@ class ToolCest
         }
 
         if (!is_array($appendParam)) {
-            throw new \Exception("append data 格式不对");
+            throw new Exception("append data 格式不对");
         }
 
         return array_merge($data, $appendParam);
     }
 
     /**
+     * 执行 test cest assert 回调方法
+     *
+     * @param TestCest   $TestCest
+     * @param Data       $Data
+     * @param callable[] $callableList
+     *
+     * @return bool
+     * @throws Exception
+     */
+    public static function executeAssertCallable(TestCest $TestCest, Data $Data, $callableList)
+    {
+        $list = [];
+        if (empty($callableList)) {
+            return true;
+        } elseif (is_array($callableList)) {
+            $list = $callableList;
+        } elseif (is_callable($callableList)) {
+            $list[] = $callableList;
+        } else {
+            throw new Exception("回调函数参数不对");
+        }
+
+        foreach ($list as $callable) {
+            if (is_callable($callable)) {
+                $CA = new ApiCestAssert();
+                $CA->ApiTester = $TestCest->ApiTester;
+                $CA->Data = $Data;
+                $CA->Request = $Data->Request;
+                $CA->Response = $Data->Response;
+
+                call_user_func_array($callable, [$CA]);
+            } else {
+                throw new Exception("回调函数不是函数");
+            }
+        }
+
+        return true;
+    }
+
+    /**
      * @param object|array $Form
      *
      * @return array
-     * @throws \ReflectionException
+     * @throws ReflectionException
      */
     public static function extractAlias($Form)
     {
         $alias = [];
         if (is_object($Form)) {
-            $Ref = new \ReflectionClass(get_class($Form));
-            $properties = $Ref->getProperties(\ReflectionProperty::IS_PUBLIC);
+            $Ref = new ReflectionClass(get_class($Form));
+            $properties = $Ref->getProperties(ReflectionProperty::IS_PUBLIC);
             foreach ($properties as $property) {
                 $res = [];
                 $doc = $property->getDocComment();

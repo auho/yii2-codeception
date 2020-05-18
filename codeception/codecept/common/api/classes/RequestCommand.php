@@ -85,7 +85,7 @@ class RequestCommand
      *
      * @return $this
      */
-    public function url($url, $title = '')
+    public function url($url, $title)
     {
         $this->RequestCest->url = $url;
         $this->RequestCest->title = $title;
@@ -151,6 +151,18 @@ class RequestCommand
     public function beforeRequestCallback($callable)
     {
         $this->RequestCest->beforeRequestCallableList[] = $callable;
+
+        return $this;
+    }
+
+    /**
+     * @param $callable
+     *
+     * @return $this
+     */
+    public function responseCallable($callable)
+    {
+        $this->RequestCest->responseCallable = $callable;
 
         return $this;
     }

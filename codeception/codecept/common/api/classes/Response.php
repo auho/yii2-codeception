@@ -9,6 +9,7 @@ namespace codecept\common\api\classes;
 
 use codecept\app\api\AppResponse;
 use codecept\common\api\cest\TestCest;
+use codecept\common\api\cest\ToolCest;
 
 /**
  * Class Response
@@ -57,18 +58,45 @@ class Response
     public function doResponse(TestCest $TestCest, Data $Data)
     {
         $this->response = $TestCest->ApiTester->grabPageSource();
-        $this->body = json_decode($this->response, true);
+        $this->_parseBody();
 
         if ($Data->Request->method == Request::METHOD_SKIP) {
             return null;
         }
 
+        $callableList = [];
+        if (is_callable($TestCest->RequestCest->responseCallable)) {
+            $callableList[] = $TestCest->RequestCest->responseCallable;
+        }
+
         if (is_callable($Data->responseCallable)) {
-            $Data->Response->isSuccess = call_user_func_array($Data->responseCallable, [$TestCest->ApiTester, $Data]);
-        } else {
+            $callableList[] = $Data->responseCallable;
+        }
+
+        if (empty($callableList)) {
             $TestCest->AppResponse->after($TestCest->ApiTester, $this, $Data->type);
+        } else {
+            foreach ($callableList as $callable) {
+                $Data->Response->isSuccess = ToolCest::executeAssertCallable($TestCest, $Data, [$callable]);
+            }
         }
 
         return null;
+    }
+
+    /**
+     * 更改 response 内容
+     *
+     * @param string $response
+     */
+    public function changeResponse($response)
+    {
+        $this->response = $response;
+        $this->_parseBody();
+    }
+
+    protected function _parseBody()
+    {
+        $this->body = json_decode($this->response, true);
     }
 }

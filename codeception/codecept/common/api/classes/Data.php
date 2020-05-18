@@ -95,17 +95,18 @@ class Data
     public $dataMode = self::DATA_MODE_FIELD;
 
     /**
-     * @var \codecept\common\api\classes\Request 请求对象
+     * @var Request 请求对象
      */
     public $Request;
 
     /**
-     * @var \codecept\common\api\classes\Response  响应对象
+     * @var Response  响应对象
      */
     public $Response;
 
     /**
-     * @var callable
+     * @var callable 响应回调函数，覆盖默认
+     * 回调函数需要返回 true false 表示请求是否成功
      */
     public $responseCallable = null;
 

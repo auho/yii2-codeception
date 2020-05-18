@@ -9,6 +9,7 @@ namespace codecept\common\api\cest;
 
 use codecept\common\api\classes\Request;
 use codecept\common\api\classes\RequestCommand;
+use Exception;
 
 /**
  * Class RequestCest
@@ -31,6 +32,12 @@ class RequestCest
      * @var string
      */
     public $method = '';
+
+    /**
+     * @var callable 响应回调函数，覆盖默认
+     * 回调函数需要返回 true false 表示请求是否成功
+     */
+    public $responseCallable = null;
 
     /**
      * @var callable[]    响应为成功时回调函数
@@ -118,8 +125,27 @@ class RequestCest
         return $this->paramFormat;
     }
 
+    /**
+     * @throws Exception
+     */
     public function send()
     {
+        $this->_check();
+
         call_user_func($this->sendCallback);
+    }
+
+    /**
+     * @throws Exception
+     */
+    protected function _check()
+    {
+        if (empty($this->groupName)) {
+            throw new Exception('api group name is error');
+        }
+
+        if (empty($this->apiName)) {
+            throw new Exception('api name is error');
+        }
     }
 }

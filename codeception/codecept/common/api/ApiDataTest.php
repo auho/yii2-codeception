@@ -7,11 +7,10 @@
 
 namespace codecept\common\api;
 
-
-use codecept\app\api\AppRequest;
+use \Exception;
 use codecept\common\api\cest\RequestCest;
 use codecept\common\api\cest\TestCest;
-use codecept\common\api\classes\ApiCestAssert;
+use codecept\common\api\cest\ToolCest;
 use codecept\common\api\classes\Data;
 use codecept\common\api\classes\Request;
 use codecept\common\api\classes\Response;
@@ -28,7 +27,7 @@ class ApiDataTest
     /**
      * @param TestCest $TestCest
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function doTestTest(TestCest $TestCest)
     {
@@ -69,7 +68,7 @@ class ApiDataTest
      * @param Data     $Data
      *
      * @return string
-     * @throws \Exception
+     * @throws Exception
      */
     protected function _executeTest(TestCest $TestCest, Data $Data)
     {
@@ -146,31 +145,10 @@ class ApiDataTest
      * @param callable[] $callableList
      *
      * @return bool
-     * @throws \Exception
+     * @throws Exception
      */
     private function _executeCallable(TestCest $TestCest, Data $Data, $callableList)
     {
-        $list = [];
-        if (!is_array($callableList)) {
-            $list[] = $callableList;
-        } elseif (is_array($callableList)) {
-            $list = $callableList;
-        } else {
-            throw new \Exception("回调函数参数不对");
-        }
-
-        foreach ($list as $callable) {
-            if (is_callable($callable)) {
-                $CA = new ApiCestAssert();
-                $CA->ApiTester = $TestCest->ApiTester;
-                $CA->Data = $Data;
-                $CA->Request = $Data->Request;
-                $CA->Response = $Data->Response;
-
-                call_user_func_array($callable, [$CA]);
-            }
-        }
-
-        return true;
+        return ToolCest::executeAssertCallable($TestCest, $Data, $callableList);
     }
 }

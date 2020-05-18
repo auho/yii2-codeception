@@ -8,6 +8,7 @@
 namespace codecept\common\api\cest;
 
 
+use ApiTester;
 use codecept\app\api\AppRequest;
 use codecept\app\api\AppResponse;
 use codecept\common\api\ApiBaseCest;
@@ -17,26 +18,29 @@ use codecept\common\api\classes\Provider;
 use codecept\common\api\classes\RequestCommand;
 use codecept\common\api\DataProvider;
 use codecept\common\output\ApiAnnotate;
+use Exception;
+use ReflectionClass;
+use ReflectionException;
 
 class TestCest
 {
     /**
-     * @var \codecept\common\api\classes\CestFile   测试文件
+     * @var CestFile   测试文件
      */
     public $CestFile;
 
     /**
-     * @var \codecept\common\api\ApiBaseCest
+     * @var ApiBaseCest
      */
     public $Cest;
 
     /**
-     * @var \ApiTester
+     * @var ApiTester
      */
     public $ApiTester;
 
     /**
-     * @var \codecept\common\api\DataProvider  数据供给器对象
+     * @var DataProvider  数据供给器对象
      */
     public $DataProvider;
 
@@ -51,7 +55,7 @@ class TestCest
     public $AppResponse;
 
     /**
-     * @var \codecept\common\output\ApiAnnotate   api 文档注释对象
+     * @var ApiAnnotate   api 文档注释对象
      */
     public $ApiAnnotate;
 
@@ -71,16 +75,6 @@ class TestCest
     public $testMethodName = '';
 
     /**
-     * @var string
-     */
-    public $groupName = '';
-
-    /**
-     * @var string
-     */
-    public $apiName = '';
-
-    /**
      * @var ProviderCest
      */
     protected $ProviderCest;
@@ -89,7 +83,7 @@ class TestCest
      * @param ApiBaseCest $Cest
      *
      * @return TestCest
-     * @throws \ReflectionException
+     * @throws ReflectionException
      */
     public static function create(ApiBaseCest $Cest)
     {
@@ -102,7 +96,7 @@ class TestCest
     /**
      * @param ApiBaseCest $Cest
      *
-     * @throws \ReflectionException
+     * @throws ReflectionException
      */
     public function init(ApiBaseCest $Cest)
     {
@@ -130,30 +124,30 @@ class TestCest
     }
 
     /**
-     * @param \ApiTester $ApiTester
+     * @param ApiTester $ApiTester
      *
      * @return RequestCommand
-     * @throws \ReflectionException
+     * @throws ReflectionException
      */
-    public function request(\ApiTester $ApiTester)
+    public function request(ApiTester $ApiTester)
     {
         $this->ApiTester = $ApiTester;
 
-        $RefScenario = (new \ReflectionClass($ApiTester))->getProperty('scenario');
+        $RefScenario = (new ReflectionClass($ApiTester))->getProperty('scenario');
         $RefScenario->setAccessible(true);
         $Scenario = $RefScenario->getValue($ApiTester);
 
-        $RefTest = (new \ReflectionClass($Scenario))->getProperty('test');
+        $RefTest = (new ReflectionClass($Scenario))->getProperty('test');
         $RefTest->setAccessible(true);
         $Test = $RefTest->getValue($Scenario);
 
-        $RefTestMethod = (new \ReflectionClass($Test))->getProperty('testMethod');
+        $RefTestMethod = (new ReflectionClass($Test))->getProperty('testMethod');
         $RefTestMethod->setAccessible(true);
         $this->testMethodName = $RefTestMethod->getValue($Test);
 
         return $this->RequestCest->command()
             ->groupName($this->Cest->groupName)
-            ->apiName($this->testClassName . '-' . str_replace('action', '', $this->testMethodName));
+            ->apiName(str_replace('\\', '', $this->testClassName) . str_replace('action', '', $this->testMethodName));
     }
 
     /**
@@ -198,7 +192,7 @@ class TestCest
     /**
      * @param ApiBaseCest $Cest
      *
-     * @throws \ReflectionException
+     * @throws ReflectionException
      */
     protected function _createOther(ApiBaseCest $Cest)
     {
@@ -211,7 +205,7 @@ class TestCest
             $this->ApiAnnotate = new $apiAnnotate();
         }
 
-        $Reflection = new \ReflectionClass($Cest);
+        $Reflection = new ReflectionClass($Cest);
         $filePath = $Reflection->getFileName();
         $this->CestFile = new CestFile($filePath);
         $this->testClassName = $Reflection->getName();
@@ -257,7 +251,7 @@ class TestCest
     /**
      * @param Provider $Provider
      *
-     * @throws \Exception
+     * @throws Exception
      */
     protected function pushProvider(Provider $Provider)
     {
@@ -265,7 +259,7 @@ class TestCest
     }
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     protected function dataTest()
     {
