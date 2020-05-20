@@ -196,6 +196,7 @@ class DataProvider
         }
 
         $wantString = implode(',', $Provider->name);
+        $valueWantString = [];
 
         // $value 字段列表的值列表；$vv 值列表 (array callable)
         foreach ($Provider->valueList as $vv) {
@@ -203,7 +204,7 @@ class DataProvider
 
             if (is_callable($vv)) {
                 $this->_pushMultiFieldCallableList($Data->dataId, $Provider->name, $vv);
-                $vv = ['multiFun()...'];
+                $valueWantString[] = 'multiFun()...';
             } elseif (is_array($vv)) {
                 //$name 字段列表；$nk 字段索引 $nv 字段名称
                 foreach ($Provider->name as $nk => $nv) {
@@ -211,10 +212,14 @@ class DataProvider
                     if (isset($vv[$nk])) {
                         if (is_callable($vv[$nk])) {
                             $this->_pushFieldCallableList($Data->dataId, $nv, $vv[$nk]);
-                            $vv[$nk] = 'fun()';
+                            $valueWantString[] = 'fun()';
+                        } elseif (is_array($vv[$nk])) {
+                            $tempValue = $vv[$nk];
+                            $valueWantString[] = json_encode($tempValue);
+                        } else {
+                            $tempValue = $vv[$nk];
+                            $valueWantString[] = $tempValue;
                         }
-
-                        $tempValue = $vv[$nk];
                     }
 
                     $this->_assignNameValue($Data, $nv, $tempValue);
@@ -223,7 +228,7 @@ class DataProvider
                 throw new Exception("name or values【 {$wantString} 】is not array or callable");
             }
 
-            $wantString .= ' => ' . implode(',', $vv);
+            $wantString .= ' => ' . implode(',', $valueWantString);
             $Data->appendWantString($wantString);
             $Data->dataMode = Data::DATA_MODE_MULTI_FIELD;
 
@@ -239,27 +244,27 @@ class DataProvider
      */
     private function _dataProviderForParamValue(Provider $Provider, $values)
     {
-        $wantString = '';
+        $valueWantString = [];
         $Data = $this->_createFromProvider($Provider);
 
         if (is_callable($values)) {
             $this->_pushParamCallableList($Data->dataId, $values);
-            $wantString = ['paramFun()...'];
+            $valueWantString[] = 'paramFun()...';
         } elseif (is_array($values)) {
             foreach ($values as $name => $value) {
                 if (is_callable($value)) {
                     $this->_pushFieldCallableList($Data->dataId, $name, $value);
-                    $wantString[] = $name . ' fun()';
+                    $valueWantString[] = $name . ' fun()';
                 } else {
                     $this->_assignNameValue($Data, $name, $values);
-                    $wantString[] = $name;
+                    $valueWantString[] = $name;
                 }
             }
         } else {
             throw new Exception("values is not array or callable");
         }
 
-        $wantString .= ' => ' . implode(',', $values);
+        $wantString = ' param => ' . implode(',', $valueWantString);
         $Data->appendWantString($wantString);
         $Data->dataMode = Data::DATA_MODE_PARAM;
 
