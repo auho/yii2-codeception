@@ -402,14 +402,6 @@ class DataProvider
                 $this->_assignNameValue($Data, $name, $callable());
             }
         }
-
-        foreach ($Data->param as $dk => $dv) {
-            if (is_callable($dv)) {
-                $Data->param[$dk] = $dv();
-            } elseif (is_null($dv)) {
-                unset($Data->param[$dk]);
-            }
-        }
     }
 
     /**
