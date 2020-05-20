@@ -137,6 +137,7 @@ class DataProvider
 
         $wantString = ' 测试';
         $wantString .= $Data->type ? '正常' : '不正常';
+        $wantString .= ' ' . $Provider->wantString;
         $Data->wantString = $wantString;
 
         return $Data;
@@ -151,7 +152,7 @@ class DataProvider
      */
     private function _dataProviderForCallable(Provider $Provider)
     {
-        $this->_dataProviderForMultiFieldValue($Provider, $Provider->name);
+        $this->_dataProviderForParamValue($Provider, $Provider->name);
     }
 
     /**
@@ -163,8 +164,21 @@ class DataProvider
      */
     private function _dataProviderForField(Provider $Provider)
     {
-        foreach ($Provider->valueList as $vk => $vv) {
+        foreach ($Provider->valueList as $vv) {
             $this->_dataProviderForFieldValue($Provider, $vv);
+        }
+    }
+
+    /**
+     * @param Provider $Provider
+     *
+     * @throws Exception
+     */
+    private function _dataProviderForParam(Provider $Provider)
+    {
+        // $value 字段列表的值列表；$vv 值列表
+        foreach ($Provider->name as $vv) {
+            $this->_dataProviderForParamValue($Provider, $vv);
         }
     }
 
@@ -183,8 +197,8 @@ class DataProvider
 
         $wantString = implode(',', $Provider->name);
 
-        // $value 字段列表的值列表；$vk 值索引 $vv 值列表 (array callable)
-        foreach ($Provider->valueList as $vk => $vv) {
+        // $value 字段列表的值列表；$vv 值列表 (array callable)
+        foreach ($Provider->valueList as $vv) {
             $Data = $this->_createFromProvider($Provider);
 
             if (is_callable($vv)) {
@@ -218,25 +232,12 @@ class DataProvider
     }
 
     /**
-     * @param Provider $Provider
-     *
-     * @throws Exception
-     */
-    private function _dataProviderForParam(Provider $Provider)
-    {
-        // $value 字段列表的值列表；$vv 值列表
-        foreach ($Provider->name as $vk => $vv) {
-            $this->_dataProviderForMultiFieldValue($Provider, $vv);
-        }
-    }
-
-    /**
      * @param Provider       $Provider
      * @param array|callable $values
      *
      * @throws Exception
      */
-    private function _dataProviderForMultiFieldValue(Provider $Provider, $values)
+    private function _dataProviderForParamValue(Provider $Provider, $values)
     {
         $wantString = '';
         $Data = $this->_createFromProvider($Provider);

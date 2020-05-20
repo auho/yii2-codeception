@@ -197,6 +197,23 @@ class ProviderCest
         $this->_resetProvider();
     }
 
+    /**
+     * @param $wantTo
+     *
+     * @return $this
+     */
+    public function wantTo($wantTo)
+    {
+        $this->Provider->wantString = $wantTo;
+
+        return $this;
+    }
+
+    /**
+     * @param null $callback
+     *
+     * @return $this
+     */
     public function responseCallable($callback = null)
     {
         $this->Provider->responseCallable = $callback;

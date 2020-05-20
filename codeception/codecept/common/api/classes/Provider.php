@@ -65,4 +65,9 @@ class Provider
      * @var callable
      */
     public $responseCallable = null;
+
+    /**
+     * @var string
+     */
+    public $wantString = '';
 }
