@@ -78,12 +78,10 @@ TITLE;
 
         $url = str_pad('', 27, ' ', STR_PAD_RIGHT) . $url;
 
-        $str = <<<URL
+        return <<<URL
  *
  * @url{$url}\n
 URL;
-
-        return $str;
     }
 
     /**
@@ -97,12 +95,10 @@ URL;
     {
         $method = str_pad('', 24, ' ', STR_PAD_RIGHT) . $method;
 
-        $str = <<<METHOD
+        return <<<METHOD
  *
  * @method{$method}\n
 METHOD;
-
-        return $str;
     }
 
     /**
