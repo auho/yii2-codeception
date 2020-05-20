@@ -10,6 +10,7 @@ namespace codecept\common\api;
 
 use codecept\common\api\classes\Data;
 use codecept\common\api\classes\Provider;
+use Exception;
 
 /**
  * Class DataProvider
@@ -26,7 +27,7 @@ class DataProvider
     protected $dataId = 0;
 
     /**
-     * @var \codecept\common\api\classes\Data[]   供给数据列表
+     * @var Data[]   供给数据列表
      */
     protected $_dataList = [];
 
@@ -41,39 +42,14 @@ class DataProvider
     protected $multiFieldCallbackList = [];
 
     /**
-     * @var array
-     */
-    protected $multiFieldWholeCallbackList = [];
-
-    /**
-     * @var array   参数单个字段列表回调函数列表
-     */
-    protected $valueCallbackList = [];
-
-    /**
-     * @var array
-     */
-    protected $valueWholeCallbackList = [];
-
-    /**
      * @var array   参数字段组合的回调函数列表
      */
     protected $paramCallbackList = [];
 
     /**
-     * @var array
-     */
-    protected $paramWholeCallbackList = [];
-
-    /**
-     * @var array   供给数据的回调函数列表
-     */
-    protected $dataCallbackList = [];
-
-    /**
      * 获取数据供给列表
      *
-     * @return \codecept\common\api\classes\Data[]
+     * @return Data[]
      */
     public function getDataList()
     {
@@ -93,17 +69,17 @@ class DataProvider
      *
      * @param Data $Data
      *
-     * @return array
+     * @throws Exception
      */
     public function generateParam(Data $Data)
     {
-        return $this->_executeCallableList($Data);
+        $this->_executeCallableList($Data);
     }
 
     /**
      * @param $ProviderList
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function pushProviderList($ProviderList)
     {
@@ -117,13 +93,13 @@ class DataProvider
      *
      * @param Provider $Provider
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function pushProvider(Provider $Provider)
     {
         $name = $Provider->name;
 
-        if (null === $name) {
+        if (is_null($name)) {
             $this->_dataProviderForData($Provider);
         } elseif (is_string($name)) {
             $this->_dataProviderForField($Provider);
@@ -150,7 +126,7 @@ class DataProvider
         $Data = new Data();
 
         $Data->dataId = $this->dataId;
-        $Data->data = $Provider->data;
+        $Data->param = $Provider->data;
         $Data->type = $Provider->type;
         $Data->changeRequestCallbackList = $Provider->changeRequestCallbackList;
         $Data->passingCallableList = $Provider->passingCallbackList;
@@ -170,19 +146,12 @@ class DataProvider
      * 可执行对象测试组合
      *
      * @param Provider $Provider
+     *
+     * @throws Exception
      */
     private function _dataProviderForCallable(Provider $Provider)
     {
-        $Data = $this->_createFromProvider($Provider);
-
-        $wantString = "data callable";
-
-        $this->_pushDataCallableList($Data->dataId, $Provider->name);
-
-        $Data->appendWantString($wantString);
-        $Data->dataMode = Data::DATA_MODE_CALLABLE;
-
-        $this->_pushData($Data);
+        $this->_dataProviderForMultiFieldValue($Provider, $Provider->name);
     }
 
     /**
@@ -190,55 +159,134 @@ class DataProvider
      *
      * @param Provider $Provider
      *
-     * @throws \Exception
+     * @throws Exception
      */
     private function _dataProviderForField(Provider $Provider)
     {
         foreach ($Provider->valueList as $vk => $vv) {
+            $this->_dataProviderForFieldValue($Provider, $vv);
+        }
+    }
+
+    /**
+     * 多参数测试组合；$name 字段列表
+     *
+     * @param Provider $Provider
+     *
+     * @throws Exception
+     */
+    private function _dataProviderForMultiField(Provider $Provider)
+    {
+        if (!is_array($Provider->name)) {
+            throw new Exception("name is not array");
+        }
+
+        $wantString = implode(',', $Provider->name);
+
+        // $value 字段列表的值列表；$vk 值索引 $vv 值列表 (array callable)
+        foreach ($Provider->valueList as $vk => $vv) {
+            $Data = $this->_createFromProvider($Provider);
+
             if (is_callable($vv)) {
-                $Data = $this->_createFromProvider($Provider);
-
                 $this->_pushMultiFieldCallableList($Data->dataId, $Provider->name, $vv);
-
-                $Data->appendWantString($Provider->name . ' => fun()');
-                $Data->dataMode = Data::DATA_MODE_FIELD;
-
-                $this->_pushData($Data);
+                $vv = ['multiFun()...'];
             } elseif (is_array($vv)) {
-                foreach ($vv as $nk => $nv) {
-                    $this->_dataProviderForFieldValue($Provider, $nv);
+                //$name 字段列表；$nk 字段索引 $nv 字段名称
+                foreach ($Provider->name as $nk => $nv) {
+                    $tempValue = null;
+                    if (isset($vv[$nk])) {
+                        if (is_callable($vv[$nk])) {
+                            $this->_pushFieldCallableList($Data->dataId, $nv, $vv[$nk]);
+                            $vv[$nk] = 'fun()';
+                        }
+
+                        $tempValue = $vv[$nk];
+                    }
+
+                    $this->_assignNameValue($Data, $nv, $tempValue);
                 }
             } else {
-                $this->_dataProviderForFieldValue($Provider, $vv);
+                throw new Exception("name or values【 {$wantString} 】is not array or callable");
             }
+
+            $wantString .= ' => ' . implode(',', $vv);
+            $Data->appendWantString($wantString);
+            $Data->dataMode = Data::DATA_MODE_MULTI_FIELD;
+
+            $this->_pushData($Data);
         }
+    }
+
+    /**
+     * @param Provider $Provider
+     *
+     * @throws Exception
+     */
+    private function _dataProviderForParam(Provider $Provider)
+    {
+        // $value 字段列表的值列表；$vv 值列表
+        foreach ($Provider->name as $vk => $vv) {
+            $this->_dataProviderForMultiFieldValue($Provider, $vv);
+        }
+    }
+
+    /**
+     * @param Provider       $Provider
+     * @param array|callable $values
+     *
+     * @throws Exception
+     */
+    private function _dataProviderForMultiFieldValue(Provider $Provider, $values)
+    {
+        $wantString = '';
+        $Data = $this->_createFromProvider($Provider);
+
+        if (is_callable($values)) {
+            $this->_pushParamCallableList($Data->dataId, $values);
+            $wantString = ['paramFun()...'];
+        } elseif (is_array($values)) {
+            foreach ($values as $name => $value) {
+                if (is_callable($value)) {
+                    $this->_pushFieldCallableList($Data->dataId, $name, $value);
+                    $wantString[] = $name . ' fun()';
+                } else {
+                    $this->_assignNameValue($Data, $name, $values);
+                    $wantString[] = $name;
+                }
+            }
+        } else {
+            throw new Exception("values is not array or callable");
+        }
+
+        $wantString .= ' => ' . implode(',', $values);
+        $Data->appendWantString($wantString);
+        $Data->dataMode = Data::DATA_MODE_PARAM;
+
+        $this->_pushData($Data);
     }
 
     /**
      * @param Provider        $Provider
      * @param string|int|bool $value
      *
-     * @throws \Exception
+     * @throws Exception
      */
     private function _dataProviderForFieldValue(Provider $Provider, $value)
     {
         $Data = $this->_createFromProvider($Provider);
+
         // 如果值为 null 表示不传此值
-        if ($value === null) {
-            unset($Data->data[$Provider->name]);
+        if (is_null($value)) {
+            $this->_assignNameValue($Data, $Provider->name, $value);
             $value = 'null 值';
         } elseif (is_array($value)) {
-            throw  new \Exception("参数错误");
-        } elseif (is_string($value)) {
-            $Data->data[$Provider->name] = $value;
-            if ($value === '') {
-                $value = '空字符串';
-            }
+            $this->_assignNameValue($Data, $Provider->name, $value);
+            $value = json_encode($value);
         } elseif (is_callable($value)) {
             $this->_pushFieldCallableList($Data->dataId, $Provider->name, $value);
             $value = 'fun()';
         } else {
-            $Data->data[$Provider->name] = $value;
+            $this->_assignNameValue($Data, $Provider->name, $value);
             if ($value === '') {
                 $value = '空字符串';
             }
@@ -248,121 +296,6 @@ class DataProvider
         $Data->dataMode = Data::DATA_MODE_FIELD;
 
         $this->_pushData($Data);
-    }
-
-    /**
-     * 多参数测试组合；$name 字段列表
-     *
-     * @param Provider $Provider
-     *
-     * @throws \Exception
-     */
-    private function _dataProviderForMultiField(Provider $Provider)
-    {
-        if (!is_array($Provider->name)) {
-            throw new \Exception("参数列表不是数组");
-        }
-
-        $wantString = implode(',', $Provider->name);
-
-        if (is_callable($Provider->valueList)) {
-            $Data = $this->_createFromProvider($Provider);
-
-            $this->_pushMultiFieldWholeCallableList($Data->dataId, $Provider->name, $Provider->valueList);
-
-            $Data->appendWantString($wantString . ' => funMultiWhole');
-            $Data->dataMode = Data::DATA_MODE_MULTI_FIELD;
-
-            $this->_pushData($Data);
-        } else {
-            // $value 字段列表的值列表；$vk 值索引 $vv 值列表
-            foreach ($Provider->valueList as $vk => $vv) {
-                $Data = $this->_createFromProvider($Provider);
-
-                if (is_callable($vv)) {
-                    $this->_pushMultiFieldCallableList($Data->dataId, $Provider->name, $vv);
-                    $vv = ['funcMulti()...'];
-                } else {
-                    if (!is_array($vv)) {
-                        throw new \Exception("参数的值列表 【 {$wantString} 】不是数组");
-                    }
-
-                    //$name 字段列表；$nk 字段索引 $nv 字段名称
-                    foreach ($Provider->name as $nk => $nv) {
-                        $tempValue = null;
-                        if (isset($vv[$nk])) {
-                            if (is_callable($vv[$nk])) {
-                                $this->_pushFieldCallableList($Data->dataId, $nv, $vv[$nk]);
-                                $vv[$nk] = 'fun()';
-                            }
-
-                            $tempValue = $vv[$nk];
-                        }
-
-                        $Data->data[$nv] = $tempValue;
-                    }
-                }
-
-                $wantString .= ' => ' . implode(',', $vv);
-                $Data->appendWantString($wantString);
-                $Data->dataMode = Data::DATA_MODE_MULTI_FIELD;
-
-                $this->_pushData($Data);
-            }
-        }
-    }
-
-    /**
-     * @param Provider $Provider
-     *
-     * @throws \Exception
-     */
-    private function _dataProviderForParam(Provider $Provider)
-    {
-        if (empty($Provider->name) || !is_array($Provider->valueList)) {
-            throw new \Exception("参数列表不是数组");
-        }
-
-        $nameList = array_keys($Provider->name);
-        $wantString = implode(',', $nameList);
-
-        if (is_callable($Provider->name)) {
-            $Data = $this->_createFromProvider($Provider);
-            $Data->appendWantString($wantString . ' => funParamWhole');
-            $Data->dataMode = Data::DATA_MODE_PARAM;
-
-            $this->_pushParamWholeCallableList($Data->dataId, $Provider->name);
-            $this->_pushData($Data);
-        } else {
-            // $value 字段列表的值列表；$vv 值列表
-            foreach ($Provider->valueList as $vk => $vv) {
-                $Data = $this->_createFromProvider($Provider);
-
-                if (is_callable($vv)) {
-                    $this->_pushParamCallableList($Data->dataId, $vv);
-                    $vv = ['funcParam()...'];
-                } else {
-                    if (!is_array($vv)) {
-                        throw new \Exception("参数的值列表 【 {$wantString} 】不是数组");
-                    }
-
-                    foreach ($vv as $name => $value) {
-                        if (is_callable($value)) {
-                            $this->_pushFieldCallableList($Data->dataId, $name, $value);
-                            $vv[$name] = 'fun()';
-                        }
-
-                        $Data->data[$name] = $value;
-                    }
-                }
-
-                $wantString .= ' => ' . implode(',', $vv);
-                $Data->appendWantString($wantString);
-                $Data->dataMode = Data::DATA_MODE_PARAM;
-
-                $this->_pushData($Data);
-            }
-        }
     }
 
     /**
@@ -421,20 +354,6 @@ class DataProvider
     }
 
     /**
-     * @param $dataId
-     * @param $name
-     * @param $callable
-     */
-    private function _pushMultiFieldWholeCallableList($dataId, $name, $callable)
-    {
-        if (!isset($this->multiFieldWholeCallbackList[$dataId])) {
-            $this->multiFieldWholeCallbackList[$dataId] = [];
-        }
-
-        $this->multiFieldWholeCallbackList[$dataId][] = [$name, $callable];
-    }
-
-    /**
      * @param int      $dataId
      * @param callable $callable
      */
@@ -448,86 +367,108 @@ class DataProvider
     }
 
     /**
-     * @param $dataId
-     * @param $callable
-     */
-    private function _pushParamWholeCallableList($dataId, $callable)
-    {
-        if (!isset($this->paramWholeCallbackList[$dataId])) {
-            $this->paramWholeCallbackList[$dataId] = null;
-        }
-
-        $this->paramWholeCallbackList[$dataId][] = $callable;
-    }
-
-    /**
-     * @param int      $dataId
-     * @param callable $callable
-     */
-    private function _pushDataCallableList($dataId, $callable)
-    {
-        if (!isset($this->dataCallbackList[$dataId])) {
-            $this->dataCallbackList[$dataId] = null;
-        }
-
-        $this->dataCallbackList[$dataId] = $callable;
-    }
-
-    /**
      * 执行可以执行参数
      *
      * @param Data $Data
      *
-     * @return array
+     * @throws Exception
      */
     private function _executeCallableList(Data $Data)
     {
-        $Data->param = $Data->data;
-
-        if (isset($this->dataCallbackList[$Data->dataId])) {
-            $callable = $this->dataCallbackList[$Data->dataId];
-            $Data->param = array_merge($Data->param, $callable());
-        }
-
-        if (isset($this->paramWholeCallbackList[$Data->dataId])) {
-            foreach ($this->paramWholeCallbackList[$Data->dataId] as $callable) {
-                $Data->param = array_merge($Data->param, $callable());
-            }
-        }
+        $Data->data = $Data->param;
 
         if (isset($this->paramCallbackList[$Data->dataId])) {
             foreach ($this->paramCallbackList[$Data->dataId] as $callable) {
-                $Data->param = array_merge($Data->param, $callable());
+                $this->_assignValues($Data, $callable());
             }
         }
 
         if (isset($this->multiFieldCallbackList[$Data->dataId])) {
             foreach ($this->multiFieldCallbackList[$Data->dataId] as $item) {
                 $name = $item[0];
-                $callable = $item[1];
-                $multiField = $callable();
+                $multiField = $item[1]();
                 if (is_array($name)) {
                     foreach ($name as $k => $v) {
-                        $Data->param[$v] = $multiField[$k];
+                        $this->_assignNameValue($Data, $v, $multiField[$k]);
                     }
                 } else {
-                    $Data->param[$name] = $multiField;
+                    $this->_assignNameValue($Data, $name, $multiField);
                 }
             }
         }
 
+        if (isset($this->fieldCallbackList[$Data->dataId])) {
+            foreach ($this->fieldCallbackList[$Data->dataId] as $name => $callable) {
+                $this->_assignNameValue($Data, $name, $callable());
+            }
+        }
+
         foreach ($Data->param as $dk => $dv) {
-            if (isset($this->fieldCallbackList[$Data->dataId][$dk])) {
-                $Data->param[$dk] = $this->fieldCallbackList[$Data->dataId][$dk]();
-            } elseif (is_string($dv) || is_array($dv)) {
-                $Data->param[$dk] = $dv;
-            } elseif (is_callable($dv)) {
+            if (is_callable($dv)) {
                 $Data->param[$dk] = $dv();
             } elseif (is_null($dv)) {
                 unset($Data->param[$dk]);
             }
         }
+    }
 
-        return $Data->param;
+    /**
+     * @param Data  $Data
+     * @param array $values
+     *
+     * @throws Exception
+     */
+    protected function _assignValues($Data, $values)
+    {
+        foreach ($values as $name => $value) {
+            $this->_assignNameValue($Data, $name, $value);
+        }
+    }
+
+    /**
+     * @param Data                  $Data
+     * @param string                $name
+     * @param string|array|callable $value
+     */
+    protected function _assignNameValue(Data $Data, $name, $value)
+    {
+        $names = explode('.', $name);
+        $count = count($names);
+
+        if ($count == 1) {
+            $Data->param[$name] = $value;
+        } else {
+            /*
+             * 赋值嵌套结构
+             */
+            $upperLevel = [];
+            foreach ($names as $key => $item) {
+                if ($key == 0) {
+                    $upperLevel[$key] = $Data->param[$item];
+                } else {
+                    $upperLevel[$key] = $upperLevel[$key - 1][$item];
+                }
+
+                if ($key == $count - 1) {
+                    if (is_null($value)) {
+                        unset($upperLevel[$key]);
+                    } else {
+                        $upperLevel[$key] = $value;
+                    }
+                }
+            }
+
+            foreach (array_reverse($names, true) as $key => $item) {
+                if ($key == 0) {
+                    $Data->param[$item] = $upperLevel[$key];
+                } else {
+                    if (isset($upperLevel[$key])) {
+                        $upperLevel[$key - 1][$item] = $upperLevel[$key];
+                    } else {
+                        unset($upperLevel[$key - 1][$item]);
+                    }
+                }
+            }
+        }
     }
 }

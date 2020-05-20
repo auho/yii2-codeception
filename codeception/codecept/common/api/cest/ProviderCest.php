@@ -9,6 +9,7 @@ namespace codecept\common\api\cest;
 
 
 use codecept\common\api\classes\Provider;
+use Exception;
 
 /**
  * Class ProviderCest
@@ -60,6 +61,10 @@ class ProviderCest
      * @param string|array|callable $name   参数
      * @param array                 $values 参数的值
      *
+     *
+     * $name    callable
+     * callable 返回 ['abc' => 123]
+     *
      * 单个参数：
      *  $name   'username'
      *  $value  ['abc', 'edf', callable]
@@ -69,21 +74,25 @@ class ProviderCest
      *  $value  [
      *              ['abc', '123'],
      *              ['edf', '456'],
-     *              ['edf', callable],
-     *              [callable, callable],
+     *              ['edf', callable]
      *          ]
      *
      * @return $this
-     * @throws \Exception
+     * @throws Exception
      */
     public function field($name, $values = null)
     {
         if (empty($name)) {
-            throw new \Exception("参数为空");
+            throw new Exception("name is null");
         }
 
         $this->Provider->name = $name;
-        if (!empty($values)) {
+
+        if (!is_null($values)) {
+            if (!is_array($values)) {
+                throw new Exception("values is not array");
+            }
+
             $this->values($values);
         }
 
@@ -107,18 +116,19 @@ class ProviderCest
      *          字段 => 字段值,
      *          字段 => 字段值,
      *          字段 => 字段值,
-     *      ]
+     *      ],
+     *      callable
      * ]
      *
      * @param array|callable $list
      *
      * @return $this
-     * @throws \Exception
+     * @throws Exception
      */
     public function param($list)
     {
         if (empty($list)) {
-            throw new \Exception("回调测试组合 参数为空");
+            throw new Exception("回调测试组合 参数为空");
         }
 
         if (is_callable($list)) {
@@ -132,7 +142,7 @@ class ProviderCest
                 }
             }
         } else {
-            throw new \Exception("回调测试组合 参数错误");
+            throw new Exception("回调测试组合 参数错误");
         }
 
         return $this;
@@ -142,7 +152,7 @@ class ProviderCest
      * @param array $values
      *
      * @return $this
-     * @throws \Exception
+     * @throws Exception
      */
     protected function values($values)
     {
@@ -150,7 +160,7 @@ class ProviderCest
             array_push($this->Provider->valueList, $values);
         } else {
             if (!is_array($values)) {
-                throw  new \Exception("参数不是数组");
+                throw  new Exception("参数不是数组");
             }
 
             array_push($this->Provider->valueList, ...$values);
