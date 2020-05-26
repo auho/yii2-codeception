@@ -85,6 +85,11 @@ class RequestCest
     public $apiName = '';
 
     /**
+     * @var bool 是否生成文档
+     */
+    public $generateDoc = true;
+
+    /**
      * @var callable
      */
     protected $sendCallback;
@@ -131,6 +136,8 @@ class RequestCest
     public function send()
     {
         $this->_check();
+
+        $this->apiName = md5($this->apiName . $this->title);
 
         call_user_func($this->sendCallback);
     }

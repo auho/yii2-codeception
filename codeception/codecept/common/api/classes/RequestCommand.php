@@ -10,6 +10,8 @@ namespace codecept\common\api\classes;
 
 use codecept\common\api\cest\RequestCest;
 use codecept\common\api\cest\ToolCest;
+use Exception;
+use ReflectionException;
 
 /**
  * Class RequestCommand
@@ -33,7 +35,7 @@ class RequestCommand
     }
 
     /**
-     *
+     * @throws Exception
      */
     public function GET()
     {
@@ -43,7 +45,7 @@ class RequestCommand
     }
 
     /**
-     *
+     * @throws Exception
      */
     public function POST()
     {
@@ -53,16 +55,17 @@ class RequestCommand
     }
 
     /**
-     *
+     * @throws Exception
      */
     public function PostViaJson()
     {
         $this->RequestCest->paramJson();
+
         $this->POST();
     }
 
     /**
-     *
+     * @throws Exception
      */
     public function SKIP()
     {
@@ -72,7 +75,7 @@ class RequestCommand
     }
 
     /**
-     *
+     * @throws Exception
      */
     protected function send()
     {
@@ -97,7 +100,7 @@ class RequestCommand
      * @param $data
      *
      * @return $this
-     * @throws \Exception
+     * @throws Exception
      */
     public function appendUrlParam($data)
     {
@@ -110,7 +113,7 @@ class RequestCommand
      * @param $data
      *
      * @return $this
-     * @throws \Exception
+     * @throws Exception
      */
     public function appendBodyParam($data)
     {
@@ -183,7 +186,7 @@ class RequestCommand
      * @param $alias
      *
      * @return $this
-     * @throws \ReflectionException
+     * @throws ReflectionException
      */
     public function alias($alias)
     {
@@ -212,6 +215,16 @@ class RequestCommand
     public function apiName($name)
     {
         $this->RequestCest->apiName = $name;
+
+        return $this;
+    }
+
+    /**
+     * @return $this
+     */
+    public function noDoc()
+    {
+        $this->RequestCest->generateDoc = false;
 
         return $this;
     }

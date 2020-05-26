@@ -110,7 +110,7 @@ class ApiDataTest
             $this->_executeCallable($TestCest, $Data, $TestCest->RequestCest->failureCallableList);
         }
 
-        if ($Data->type && $Data->Response->isSuccess) {
+        if ($TestCest->RequestCest->generateDoc && $Data->type && $Data->Response->isSuccess) {
             $TestCest->ApiAnnotate->toPhpDoc($TestCest, $Data);
 
             return $Data->Request->getWantTo();

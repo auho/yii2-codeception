@@ -84,7 +84,7 @@ class ApiAnnotate
         $requestLog = '';
         $requestLog .= $TestCest->testMethodName . "\n";
         $requestLog .= $Data->Request->url . "\n";
-        $requestLog .= $Data->Request->debug_url . "\n";
+        $requestLog .= $Data->Request->debugUrl . "\n";
         $requestLog .= json_encode($Data->param, JSON_UNESCAPED_UNICODE) . "\n";
         $requestLog .= json_encode($Data->Response->body, JSON_UNESCAPED_UNICODE) . "\n";
         $requestLog .= "\n\n";

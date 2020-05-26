@@ -183,7 +183,7 @@ FOOTER;
     }
 
     /**
-     * 格式化成 markdown 形式的 php doc
+     * 格式化成 apiDoc 形式的 php doc
      *
      * @param array|string $data 被格式化的数据
      * @param string       $name

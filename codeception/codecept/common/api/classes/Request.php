@@ -7,7 +7,9 @@
 
 namespace codecept\common\api\classes;
 
+use ApiTester;
 use codecept\common\api\cest\ToolCest;
+use Exception;
 
 /**
  * Class Request
@@ -64,7 +66,7 @@ class Request
     /**
      * @var string  测试url（供手动测试使用）
      */
-    public $debug_url = '';
+    public $debugUrl = '';
 
     /**
      * @var string
@@ -100,7 +102,7 @@ class Request
      * @param $append
      *
      * @return null
-     * @throws \Exception
+     * @throws Exception
      */
     public function appendHeader($append)
     {
@@ -119,7 +121,7 @@ class Request
      * @param array|callable $append
      *
      * @return array
-     * @throws \Exception
+     * @throws Exception
      */
     public function appendUrlParam($append)
     {
@@ -138,7 +140,7 @@ class Request
      * @param array|callable $append
      *
      * @return null
-     * @throws \Exception
+     * @throws Exception
      */
     public function appendBodyParam($append)
     {
@@ -152,9 +154,9 @@ class Request
     }
 
     /**
-     * @param \ApiTester $ApiTester
+     * @param ApiTester $ApiTester
      */
-    public function sendRequest(\ApiTester $ApiTester)
+    public function sendRequest(ApiTester $ApiTester)
     {
         if ($this->bodyParamFormat == self::FORMAT_JSON) {
             $ApiTester->haveHttpHeader('Content-Type', 'application/json');
@@ -180,17 +182,17 @@ class Request
     }
 
     /**
-     * @param \ApiTester $ApiTester
+     * @param ApiTester $ApiTester
      */
-    protected function _SKIP(\ApiTester $ApiTester)
+    protected function _SKIP(ApiTester $ApiTester)
     {
         $ApiTester->fail("跳过测试");
     }
 
     /**
-     * @param \ApiTester $ApiTester
+     * @param ApiTester $ApiTester
      */
-    protected function _GET(\ApiTester $ApiTester)
+    protected function _GET(ApiTester $ApiTester)
     {
         $this->urlParam = $this->param;
 
@@ -199,7 +201,7 @@ class Request
         $joiner = false === strpos($this->url, '?') ? '?' : '&';
 
         $this->url = $this->url . $joiner . http_build_query($this->urlParam);
-        $this->debug_url = $this->url;
+        $this->debugUrl = $this->url;
 
         $this->wantTo = $this->wantToTestString . PHP_EOL . $this->url;
         if (!empty($this->_appendHeader)) {
@@ -212,9 +214,9 @@ class Request
     }
 
     /**
-     * @param \ApiTester $ApiTester
+     * @param ApiTester $ApiTester
      */
-    protected function _POST(\ApiTester $ApiTester)
+    protected function _POST(ApiTester $ApiTester)
     {
         $this->bodyParam = $this->param;
 
@@ -232,8 +234,8 @@ class Request
         }
 
         $joiner = $this->_buildUrlSymbol($this->url);
-        $this->debug_url = $this->url . $joiner . $phpDebugParam;
-        $this->wantTo = $this->wantToTestString . PHP_EOL . $this->debug_url . PHP_EOL . $bodyParamJson;
+        $this->debugUrl = $this->url . $joiner . $phpDebugParam;
+        $this->wantTo = $this->wantToTestString . PHP_EOL . $this->debugUrl . PHP_EOL . $bodyParamJson;
         if (!empty($this->_appendHeader)) {
             $this->wantTo .= PHP_EOL . json_encode($this->_appendHeader, JSON_UNESCAPED_UNICODE);
         }
@@ -247,7 +249,7 @@ class Request
         $ApiTester->sendAjaxPostRequest($this->url, $this->bodyParam);
     }
 
-    protected function _buildHeader(\ApiTester $I)
+    protected function _buildHeader(ApiTester $I)
     {
         foreach ($this->_appendHeader as $name => $value) {
             $I->setHeader($name, $value);

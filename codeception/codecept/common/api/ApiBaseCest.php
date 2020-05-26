@@ -76,7 +76,6 @@ class ApiBaseCest
 
     public function _after($test)
     {
-        $this->TestCest->resetTest();
     }
 
     /**
