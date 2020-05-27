@@ -220,9 +220,11 @@ class RequestCommand
     }
 
     /**
+     * 不作为测试
+     *
      * @return $this
      */
-    public function noDoc()
+    public function noTest()
     {
         $this->RequestCest->generateDoc = false;
 

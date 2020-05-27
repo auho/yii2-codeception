@@ -94,20 +94,16 @@ class ApiBaseCest
         $this->TestCest->setProvider($ProviderCest);
     }
 
-    /**
-     *
-     */
     protected function _beforeClassCest()
     {
-
     }
 
-    /**
-     *
-     */
     protected function _beforeCest()
     {
+    }
 
+    protected function _beforeTest()
+    {
     }
 
     /**

@@ -158,7 +158,7 @@ class Request
      */
     public function sendRequest(ApiTester $ApiTester)
     {
-        if ($this->bodyParamFormat == self::FORMAT_JSON) {
+        if ($this->_isPostJson()) {
             $ApiTester->haveHttpHeader('Content-Type', 'application/json');
         }
 
@@ -242,11 +242,12 @@ class Request
 
         $ApiTester->wantToTest($this->wantTo);
 
-        if ($this->bodyParamFormat == 'json') {
+        if ($this->_isPostJson()) {
             $this->bodyParam = json_encode($this->bodyParam, JSON_UNESCAPED_UNICODE);
+            $ApiTester->sendPOST($this->url, $this->bodyParam);
+        } else {
+            $ApiTester->sendAjaxPostRequest($this->url, $this->bodyParam);
         }
-
-        $ApiTester->sendAjaxPostRequest($this->url, $this->bodyParam);
     }
 
     protected function _buildHeader(ApiTester $I)
@@ -273,5 +274,10 @@ class Request
     protected function _buildUrlSymbol($url)
     {
         return false === strpos($url, '?') ? '?' : '&';
+    }
+
+    protected function _isPostJson()
+    {
+        return $this->bodyParamFormat == self::FORMAT_JSON;
     }
 }
