@@ -433,38 +433,44 @@ class DataProvider
         $names = explode('.', $name);
         $count = count($names);
 
-        if ($count == 1) {
-            $Data->param[$name] = $value;
-        } else {
-            /*
-             * 赋值嵌套结构
-             */
-            $upperLevel = [];
-            foreach ($names as $key => $item) {
-                if ($key == 0) {
+        /*
+         * 赋值嵌套结构
+         * 先存储每一层级的数据
+         * 反向赋值给每一级数据，从最底层到最上层
+         */
+        $upperLevel = [];
+        foreach ($names as $key => $item) {
+            if ($key == 0) {
+                if (isset($Data->param[$item])) {
                     $upperLevel[$key] = $Data->param[$item];
-                } else {
-                    $upperLevel[$key] = $upperLevel[$key - 1][$item];
                 }
-
-                if ($key == $count - 1) {
-                    if (is_null($value)) {
-                        unset($upperLevel[$key]);
-                    } else {
-                        $upperLevel[$key] = $value;
-                    }
+            } else {
+                if (isset($upperLevel[$key - 1][$item])) {
+                    $upperLevel[$key] = $upperLevel[$key - 1][$item];
                 }
             }
 
-            foreach (array_reverse($names, true) as $key => $item) {
-                if ($key == 0) {
+            if ($key == $count - 1) {
+                if (is_null($value)) {
+                    unset($upperLevel[$key]);
+                } else {
+                    $upperLevel[$key] = $value;
+                }
+            }
+        }
+
+        foreach (array_reverse($names, true) as $key => $item) {
+            if ($key == 0) {
+                if (isset($upperLevel[$key])) {
                     $Data->param[$item] = $upperLevel[$key];
                 } else {
-                    if (isset($upperLevel[$key])) {
-                        $upperLevel[$key - 1][$item] = $upperLevel[$key];
-                    } else {
-                        unset($upperLevel[$key - 1][$item]);
-                    }
+                    unset($Data->param[$item]);
+                }
+            } else {
+                if (isset($upperLevel[$key])) {
+                    $upperLevel[$key - 1][$item] = $upperLevel[$key];
+                } else {
+                    unset($upperLevel[$key - 1][$item]);
                 }
             }
         }
