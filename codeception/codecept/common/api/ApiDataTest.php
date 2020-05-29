@@ -34,12 +34,25 @@ class ApiDataTest
         $dataList = $TestCest->DataProvider->getDataList();
 
         $wantTo = '';
+        $dataListCount = count($dataList);
         foreach ($dataList as $key => $Data) {
             $maxRepeat = 1;
 
-            // 重复测试
-            if ($Data->repeatNum > 0) {
-                $maxRepeat = $Data->repeatNum + 1;
+            if ($TestCest->RequestCest->isOnlyLast) {
+                if ($key < $dataListCount - 1) {
+                    continue;
+                }
+            } else {
+                // 重复测试
+                if ($Data->repeatNum > 0) {
+                    $maxRepeat = $Data->repeatNum + 1;
+                }
+            }
+
+            if ($TestCest->RequestCest->isOnlyCorrect) {
+                if (!$Data->type) {
+                    continue;
+                }
             }
 
             do {
@@ -110,7 +123,7 @@ class ApiDataTest
             $this->_executeCallable($TestCest, $Data, $TestCest->RequestCest->failureCallableList);
         }
 
-        if ($TestCest->RequestCest->generateDoc && $Data->type && $Data->Response->isSuccess) {
+        if ($TestCest->RequestCest->isGenerateDoc && $Data->type && $Data->Response->isSuccess) {
             $TestCest->ApiAnnotate->toPhpDoc($TestCest, $Data);
 
             return $Data->Request->getWantTo();

@@ -87,7 +87,17 @@ class RequestCest
     /**
      * @var bool 是否生成文档
      */
-    public $generateDoc = true;
+    public $isGenerateDoc = true;
+
+    /**
+     * @var bool 是否只运行正常的请求
+     */
+    public $isOnlyCorrect = false;
+
+    /**
+     * @var bool 是否只运行最后一个请求
+     */
+    public $isOnlyLast = false;
 
     /**
      * @var callable

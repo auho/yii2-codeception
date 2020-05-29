@@ -226,8 +226,27 @@ class RequestCommand
      */
     public function noTest()
     {
-        $this->RequestCest->generateDoc = false;
+        $this->RequestCest->isGenerateDoc = false;
 
+        return $this;
+    }
+
+    /**
+     * @return $this
+     */
+    public function onlyCorrect()
+    {
+        $this->RequestCest->isOnlyCorrect = true;
+
+        return $this;
+    }
+
+    /**
+     * @return $this
+     */
+    public function onlyLast()
+    {
+        $this->RequestCest->isOnlyLast = true;
         return $this;
     }
 }
