@@ -127,6 +127,7 @@ class DataProvider
 
         $Data->dataId = $this->dataId;
         $Data->param = $Provider->data;
+        $Data->files = $Provider->files;
         $Data->type = $Provider->type;
         $Data->changeRequestCallbackList = $Provider->changeRequestCallbackList;
         $Data->passingCallableList = $Provider->passingCallbackList;

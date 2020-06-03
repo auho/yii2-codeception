@@ -149,6 +149,33 @@ class ProviderCest
     }
 
     /**
+     * @param string       $fileName
+     * @param string|array $file
+     *
+     *  $file 格式
+     *  [
+     *      'attachmentFile' => 'sample_file.pdf'
+     *  ]
+     * OR:
+     *  [
+     *      'attachmentFile' => [
+     *          'name' => 'document.pdf',
+     *          'type' => 'application/pdf',
+     *          'error' => UPLOAD_ERR_OK,
+     *          'size' => filesize(codecept_data_dir('sample_file.pdf')),
+     *          'tmp_name' => codecept_data_dir('sample_file.pdf')
+     *  ]
+     *
+     * @return $this
+     */
+    public function file($fileName, $file)
+    {
+        $this->Provider->files[$fileName] = $file;
+
+        return $this;
+    }
+
+    /**
      * @param array $values
      *
      * @return $this

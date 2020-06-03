@@ -42,6 +42,8 @@ class ApiBaseCest
      */
     public function __construct()
     {
+        $this->_check();
+
         if (method_exists($this, '_beforeClassCest')) {
             $this->_beforeClassCest();
         }
@@ -104,6 +106,13 @@ class ApiBaseCest
 
     protected function _beforeTest()
     {
+    }
+
+    protected function _check()
+    {
+        if (empty($this->groupName)) {
+            throw new \Exception('group name is error');
+        }
     }
 
     /**

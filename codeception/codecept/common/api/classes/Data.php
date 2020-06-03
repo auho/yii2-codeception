@@ -60,6 +60,11 @@ class Data
     public $param = [];
 
     /**
+     * @var array 附件
+     */
+    public $files = [];
+
+    /**
      * @var string  测试提示
      */
     public $wantString = '';

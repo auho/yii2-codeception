@@ -54,11 +54,6 @@ class Request
     public $param = [];
 
     /**
-     * @var array   请求 url 参数
-     */
-    public $urlParam = [];
-
-    /**
      * @var string  测试说明文字
      */
     public $wantToTestString = '';
@@ -69,9 +64,19 @@ class Request
     public $debugUrl = '';
 
     /**
+     * @var array   上传的文件
+     */
+    public $files = null;
+
+    /**
      * @var string
      */
     public $bodyParamFormat = '';
+
+    /**
+     * @var array   请求 url 参数
+     */
+    protected $urlParam = [];
 
     /**
      * @var array   请求 body 参数
@@ -242,8 +247,11 @@ class Request
 
         $ApiTester->wantToTest($this->wantTo);
 
-        if ($this->_isPostJson()) {
+        if (!empty($this->files)) {
+            $ApiTester->sendPOST($this->url, $this->bodyParam, $this->files);
+        } elseif ($this->_isPostJson()) {
             $this->bodyParam = json_encode($this->bodyParam, JSON_UNESCAPED_UNICODE);
+
             $ApiTester->sendPOST($this->url, $this->bodyParam);
         } else {
             $ApiTester->sendAjaxPostRequest($this->url, $this->bodyParam);

@@ -22,6 +22,11 @@ class Provider
     public $data = [];
 
     /**
+     * @var array 附件
+     */
+    public $files = [];
+
+    /**
      * @var string|array|callable|null 参数字段名称
      */
     public $name;

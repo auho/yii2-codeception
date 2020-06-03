@@ -144,6 +144,7 @@ class ApiDataTest
         $Request->url = $RequestCest->url;
         $Request->method = $RequestCest->method;
         $Request->param = $Data->param;
+        $Request->files = $Data->files;
         $Request->bodyParamFormat = $RequestCest->getParamJson();
         $Request->wantToTestString = $Data->wantString;
 

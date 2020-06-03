@@ -200,6 +200,8 @@ class TestCest
     protected function _createOther(ApiBaseCest $Cest)
     {
         $this->Cest = $Cest;
+
+
         $apiAnnotate = $this->Cest->ApiConfig->api_annotate;
         if (empty($apiAnnotate)) {
             $this->ApiAnnotate = new ApiAnnotate();
