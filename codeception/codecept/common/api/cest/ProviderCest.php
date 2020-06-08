@@ -204,6 +204,8 @@ class ProviderCest
         $this->Provider->type = true;
 
         $this->_pushProvider();
+
+        $this->_resetProvider();
     }
 
     /**
@@ -214,6 +216,8 @@ class ProviderCest
         $this->Provider->type = false;
 
         $this->_pushProvider();
+
+        $this->_resetProvider();
     }
 
     /**

@@ -12,6 +12,7 @@ use codecept\app\api\AppApiConfig;
 use codecept\common\api\cest\ProviderCest;
 use codecept\common\api\cest\TestCest;
 use codecept\config\IniConfig;
+use ReflectionException;
 
 /**
  * Class ApiBaseCest
@@ -42,7 +43,7 @@ class ApiBaseCest
      */
     public function __construct()
     {
-        $this->_check();
+        $this->_checkCest();
 
         if (method_exists($this, '_beforeClassCest')) {
             $this->_beforeClassCest();
@@ -108,7 +109,7 @@ class ApiBaseCest
     {
     }
 
-    protected function _check()
+    protected function _checkCest()
     {
         if (empty($this->groupName)) {
             throw new \Exception('group name is error');
@@ -131,7 +132,6 @@ class ApiBaseCest
      * @param ApiTester $ApiTester
      *
      * @return classes\RequestCommand
-     * @throws \ReflectionException
      */
     protected function request(ApiTester $ApiTester)
     {

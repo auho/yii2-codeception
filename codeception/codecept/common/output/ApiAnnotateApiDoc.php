@@ -32,6 +32,7 @@ class ApiAnnotateApiDoc extends ApiAnnotate
         );
 
         $annotate .= $this->_formatParam($Data->param);
+        $annotate .= $this->_formatFiles($Data->files);
         $annotate .= $this->_formatParamExample($Data->param);
         $annotate .= $this->_formatResponse($Data->Response->data);
         $annotate .= $this->_formatResponseExample($Data->Response->body);
@@ -112,6 +113,26 @@ API;
 {$string} *\n
 PARAM;
 
+    }
+
+    /**
+     * @param $files
+     *
+     * @return string
+     */
+    protected function _formatFiles($files)
+    {
+        if (empty($files)) {
+            return '';
+        }
+        $string = '';
+        foreach ($files as $name => $file) {
+            $string .= ' * @apiParam {file} ' . $name . " 上传的文件标示名\n";
+        }
+
+        return <<<PARAM
+{$string} *\n
+PARAM;
     }
 
     /**

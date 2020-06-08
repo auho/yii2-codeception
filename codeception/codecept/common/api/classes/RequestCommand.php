@@ -34,9 +34,6 @@ class RequestCommand
         $this->RequestCest = $RequestCest;
     }
 
-    /**
-     * @throws Exception
-     */
     public function GET()
     {
         $this->RequestCest->method = Request::METHOD_GET;
@@ -44,9 +41,6 @@ class RequestCommand
         $this->send();
     }
 
-    /**
-     * @throws Exception
-     */
     public function POST()
     {
         $this->RequestCest->method = Request::METHOD_POST;
@@ -74,9 +68,6 @@ class RequestCommand
         $this->send();
     }
 
-    /**
-     * @throws Exception
-     */
     protected function send()
     {
         $this->RequestCest->send();
@@ -186,7 +177,6 @@ class RequestCommand
      * @param $alias
      *
      * @return $this
-     * @throws ReflectionException
      */
     public function alias($alias)
     {
