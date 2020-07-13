@@ -54,11 +54,6 @@ class Request
     public $param = [];
 
     /**
-     * @var string  测试说明文字
-     */
-    public $wantToTestString = '';
-
-    /**
      * @var string  测试url（供手动测试使用）
      */
     public $debugUrl = '';
@@ -208,7 +203,7 @@ class Request
         $this->url = $this->url . $joiner . http_build_query($this->urlParam);
         $this->debugUrl = $this->url;
 
-        $this->wantTo = $this->wantToTestString . PHP_EOL . $this->url;
+        $this->wantTo = PHP_EOL . $this->url;
         if (!empty($this->_appendHeader)) {
             $this->wantTo .= PHP_EOL . json_encode($this->_appendHeader, JSON_UNESCAPED_UNICODE);
         }
@@ -240,7 +235,7 @@ class Request
 
         $joiner = $this->_buildUrlSymbol($this->url);
         $this->debugUrl = $this->url . $joiner . $phpDebugParam;
-        $this->wantTo = $this->wantToTestString . PHP_EOL . $this->debugUrl . PHP_EOL . $bodyParamJson;
+        $this->wantTo = PHP_EOL . $this->debugUrl . PHP_EOL . $bodyParamJson;
         if (!empty($this->_appendHeader)) {
             $this->wantTo .= PHP_EOL . json_encode($this->_appendHeader, JSON_UNESCAPED_UNICODE);
         }

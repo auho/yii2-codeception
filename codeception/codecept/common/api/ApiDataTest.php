@@ -56,20 +56,28 @@ class ApiDataTest
             }
 
             do {
-                $TestCest->DataProvider->generateParam($Data);
-                $want = $this->_executeTest($TestCest, $Data);
-                if (!empty($want)) {
-                    $wantTo .= $TestCest->testMethodName . ' ' . $want . "\n";
-                }
-
                 $maxRepeat--;
 
-                // 如果反转测试（两次测试数据相同）
-                if ($Data->isReverse) {
-                    $ReverseData = clone $Data;
-                    $ReverseData->type = true === $ReverseData->type ? false : true;
-                    $wantTo .= $this->_executeTest($TestCest, $ReverseData);
+                try {
+                    $TestCest->DataProvider->generateParam($Data);
+                    $requestWant = $this->_executeTest($TestCest, $Data);
+                    if (!empty($requestWant)) {
+                        $wantTo .= $TestCest->testMethodName . ' ' . $Data->wantString . $requestWant . PHP_EOL;
+                    }
+
+                    // 如果反转测试（两次测试数据相同）
+                    if ($Data->isReverse) {
+                        $ReverseData = clone $Data;
+                        $ReverseData->type = true === $ReverseData->type ? false : true;
+                        $wantTo .= $this->_executeTest($TestCest, $ReverseData);
+                    }
+                } catch (\Throwable $e) {
+                    $wantTo .= $TestCest->testMethodName . ' ' . $Data->wantString;
+                    $TestCest->ApiTester->wantToTest($wantTo);
+
+                    $TestCest->ApiTester->assertTrue(false, $e->getMessage());
                 }
+
             } while ($maxRepeat > 0);
         }
 
@@ -146,7 +154,6 @@ class ApiDataTest
         $Request->param = $Data->param;
         $Request->files = $Data->files;
         $Request->bodyParamFormat = $RequestCest->getParamJson();
-        $Request->wantToTestString = $Data->wantString;
 
         return $Request;
     }
