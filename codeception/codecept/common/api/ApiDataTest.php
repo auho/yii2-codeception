@@ -60,22 +60,20 @@ class ApiDataTest
 
                 try {
                     $TestCest->DataProvider->generateParam($Data);
-                    $requestWant = $this->_executeTest($TestCest, $Data);
-                    if (!empty($requestWant)) {
-                        $wantTo .= $TestCest->testMethodName . ' ' . $Data->wantString . $requestWant . PHP_EOL;
-                    }
-
-                    // 如果反转测试（两次测试数据相同）
-                    if ($Data->isReverse) {
-                        $ReverseData = clone $Data;
-                        $ReverseData->type = true === $ReverseData->type ? false : true;
-                        $wantTo .= $this->_executeTest($TestCest, $ReverseData);
-                    }
                 } catch (\Throwable $e) {
-                    $wantTo .= $TestCest->testMethodName . ' ' . $Data->wantString;
-                    $TestCest->ApiTester->wantToTest($wantTo);
+                    $TestCest->ApiTester->wantToTest($TestCest->testMethodName . ' ' . $Data->wantString);
 
                     $TestCest->ApiTester->assertTrue(false, $e->getMessage());
+                }
+
+                $requestWant = $this->_executeTest($TestCest, $Data);
+                $wantTo .= $requestWant . PHP_EOL;
+
+                // 如果反转测试（两次测试数据相同）
+                if ($Data->isReverse) {
+                    $ReverseData = clone $Data;
+                    $ReverseData->type = true === $ReverseData->type ? false : true;
+                    $wantTo .= $this->_executeTest($TestCest, $ReverseData);
                 }
 
             } while ($maxRepeat > 0);

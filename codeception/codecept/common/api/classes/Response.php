@@ -64,6 +64,10 @@ class Response
             return null;
         }
 
+        # 为失败的 assert 提供 want to test text
+        $wantTo = $TestCest->testMethodName . ' ' . $Data->wantString . $Data->Request->getWantTo();
+        $TestCest->ApiTester->wantToTest($wantTo . PHP_EOL . $this->response);
+
         $callableList = [];
         if (is_callable($TestCest->RequestCest->responseCallable)) {
             $callableList[] = $TestCest->RequestCest->responseCallable;
