@@ -50,14 +50,14 @@ class Response
 
     /**
      * @param TestCest $TestCest
-     * @param Data     $Data
+     * @param Data $Data
      *
      * @return null
      * @throws \Exception
      */
     public function doResponse(TestCest $TestCest, Data $Data)
     {
-        $this->response = $TestCest->ApiTester->grabPageSource();
+        $this->response = $TestCest->ApiTester->grabResponse();
         $this->_parseBody();
 
         if ($Data->Request->method == Request::METHOD_SKIP) {

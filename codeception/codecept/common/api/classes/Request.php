@@ -249,7 +249,8 @@ class Request
 
             $ApiTester->sendPOST($this->url, $this->bodyParam);
         } else {
-            $ApiTester->sendAjaxPostRequest($this->url, $this->bodyParam);
+//            $ApiTester->sendAjaxPostRequest($this->url, $this->bodyParam);
+            $ApiTester->sendPOST($this->url, $this->bodyParam);
         }
     }
 
