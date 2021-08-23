@@ -6,6 +6,8 @@ defined('YII_ENV') or define('YII_ENV', 'test');
 
 defined('YII_APP_BASE_PATH') or define('YII_APP_BASE_PATH', dirname(dirname(__DIR__)));
 
+require(dirname(__DIR__) . '/_bootstrap.php');
+
 require(YII_APP_BASE_PATH . '/vendor/autoload.php');
 require(YII_APP_BASE_PATH . '/vendor/yiisoft/yii2/Yii.php');
 require(YII_APP_BASE_PATH . '/environments/common/config/bootstrap.php');
