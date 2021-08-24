@@ -12,7 +12,6 @@ use codecept\app\api\AppApiConfig;
 use codecept\common\api\cest\ProviderCest;
 use codecept\common\api\cest\TestCest;
 use codecept\config\IniConfig;
-use ReflectionException;
 
 /**
  * Class ApiBaseCest
@@ -112,7 +111,8 @@ class ApiBaseCest
     protected function _checkCest()
     {
         if (empty($this->groupName)) {
-            throw new \Exception('group name is error');
+            $this->groupName = substr(static::class, 0, -4);
+//            throw new \Exception('group name is error');
         }
     }
 

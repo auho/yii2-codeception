@@ -219,7 +219,8 @@ class Request
 
         $ApiTester->wantToTest($this->wantTo);
 
-        $ApiTester->sendAjaxGetRequest($this->url);
+//        $ApiTester->sendAjaxGetRequest($this->url);
+        $ApiTester->sendGET($this->url);
     }
 
     /**
