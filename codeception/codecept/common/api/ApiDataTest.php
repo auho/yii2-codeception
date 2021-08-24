@@ -67,7 +67,7 @@ class ApiDataTest
                 }
 
                 $requestWant = $this->_executeTest($TestCest, $Data);
-                $wantTo .= $requestWant . PHP_EOL;
+                $wantTo .= $requestWant;
 
                 // 如果反转测试（两次测试数据相同）
                 if ($Data->isReverse) {

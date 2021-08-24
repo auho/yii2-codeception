@@ -187,7 +187,7 @@ class Request
      */
     public function getWantTo()
     {
-        return $this->wantTo;
+        return $this->wantTo . PHP_EOL;
     }
 
     /**
