@@ -15,7 +15,7 @@ class ApiAnnotateApiDoc extends ApiAnnotate
 {
     /**
      * @param TestCest $TestCest
-     * @param Data     $Data
+     * @param Data $Data
      *
      * @return string
      */
@@ -125,9 +125,11 @@ PARAM;
         if (empty($files)) {
             return '';
         }
+
         $string = '';
         foreach ($files as $name => $file) {
-            $string .= ' * @apiParam {file} ' . $name . " 上传的文件标示名\n";
+            $alias = $this->_getAlia($name) ?: "上传的文件标示名";
+            $string .= ' * @apiParam {file} ' . $name . ' ' . $alias . "\n";
         }
 
         return <<<PARAM
@@ -207,9 +209,9 @@ FOOTER;
      * 格式化成 apiDoc 形式的 php doc
      *
      * @param array|string $data 被格式化的数据
-     * @param string       $name
-     * @param int          $indent
-     * @param string       $valueType
+     * @param string $name
+     * @param int $indent
+     * @param string $valueType
      *
      * @return string
      */
