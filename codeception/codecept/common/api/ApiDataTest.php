@@ -84,7 +84,7 @@ class ApiDataTest
 
     /**
      * @param TestCest $TestCest
-     * @param Data     $Data
+     * @param Data $Data
      *
      * @return string
      * @throws Exception
@@ -140,7 +140,7 @@ class ApiDataTest
 
     /**
      * @param RequestCest $RequestCest
-     * @param Data        $Data
+     * @param Data $Data
      *
      * @return Request
      */
@@ -151,6 +151,7 @@ class ApiDataTest
         $Request->method = $RequestCest->method;
         $Request->param = $Data->param;
         $Request->files = $Data->files;
+        $Request->xdebug = $Data->xdebug;
         $Request->bodyParamFormat = $RequestCest->getParamJson();
 
         return $Request;
@@ -159,8 +160,8 @@ class ApiDataTest
     /**
      * 执行可执行方法
      *
-     * @param TestCest   $TestCest
-     * @param Data       $Data
+     * @param TestCest $TestCest
+     * @param Data $Data
      * @param callable[] $callableList
      *
      * @return bool

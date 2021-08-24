@@ -42,6 +42,11 @@ class Provider
     public $type;
 
     /**
+     * @var bool
+     */
+    public $xdebug;
+
+    /**
      * @var callable[]  更改 request
      */
     public $changeRequestCallbackList = [];

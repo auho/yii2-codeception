@@ -58,8 +58,8 @@ class ProviderCest
     }
 
     /**
-     * @param string|array|callable $name   参数
-     * @param array                 $values 参数的值
+     * @param string|array|callable $name 参数
+     * @param array $values 参数的值
      *
      *
      * $name    callable
@@ -149,7 +149,7 @@ class ProviderCest
     }
 
     /**
-     * @param string       $fileName
+     * @param string $fileName
      * @param string|array $file
      *
      *  $file 格式
@@ -171,6 +171,16 @@ class ProviderCest
     public function file($fileName, $file)
     {
         $this->Provider->files[$fileName] = $file;
+
+        return $this;
+    }
+
+    /**
+     * @return $this
+     */
+    public function xdebug()
+    {
+        $this->Provider->xdebug = true;
 
         return $this;
     }

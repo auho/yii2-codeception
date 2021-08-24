@@ -65,6 +65,11 @@ class Data
     public $files = [];
 
     /**
+     * @var bool
+     */
+    public $xdebug = false;
+
+    /**
      * @var string  测试提示
      */
     public $wantString = '';

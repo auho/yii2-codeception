@@ -69,6 +69,11 @@ class Request
     public $bodyParamFormat = '';
 
     /**
+     * @var bool
+     */
+    public $xdebug = false;
+
+    /**
      * @var array   请求 url 参数
      */
     protected $urlParam = [];
@@ -163,6 +168,10 @@ class Request
         }
 
         $this->_buildHeader($ApiTester);
+
+        if ($this->xdebug) {
+            $this->appendUrlParam(['XDEBUG_SESSION_START' => time()]);
+        }
 
         if (self::METHOD_GET == $this->method) {
             $this->_GET($ApiTester);

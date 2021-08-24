@@ -129,6 +129,7 @@ class DataProvider
         $Data->param = $Provider->data;
         $Data->files = $Provider->files;
         $Data->type = $Provider->type;
+        $Data->xdebug = $Provider->xdebug;
         $Data->changeRequestCallbackList = $Provider->changeRequestCallbackList;
         $Data->passingCallableList = $Provider->passingCallbackList;
         $Data->noPassingCallableList = $Provider->noPassingCallbackList;
@@ -238,7 +239,7 @@ class DataProvider
     }
 
     /**
-     * @param Provider       $Provider
+     * @param Provider $Provider
      * @param array|callable $values
      *
      * @throws Exception
@@ -273,7 +274,7 @@ class DataProvider
     }
 
     /**
-     * @param Provider        $Provider
+     * @param Provider $Provider
      * @param string|int|bool $value
      *
      * @throws Exception
@@ -333,8 +334,8 @@ class DataProvider
     /**
      * 讲可执行参数，加入可执行列表，延迟到在请求的前一刻执行
      *
-     * @param int      $dataId
-     * @param string   $name
+     * @param int $dataId
+     * @param string $name
      * @param callable $callable
      */
     private function _pushFieldCallableList($dataId, $name, $callable)
@@ -347,8 +348,8 @@ class DataProvider
     }
 
     /**
-     * @param int      $dataId
-     * @param string   $name
+     * @param int $dataId
+     * @param string $name
      * @param callable $callable
      */
     private function _pushMultiFieldCallableList($dataId, $name, $callable)
@@ -361,7 +362,7 @@ class DataProvider
     }
 
     /**
-     * @param int      $dataId
+     * @param int $dataId
      * @param callable $callable
      */
     private function _pushParamCallableList($dataId, $callable)
@@ -412,7 +413,7 @@ class DataProvider
     }
 
     /**
-     * @param Data  $Data
+     * @param Data $Data
      * @param array $values
      *
      * @throws Exception
@@ -425,8 +426,8 @@ class DataProvider
     }
 
     /**
-     * @param Data                  $Data
-     * @param string                $name
+     * @param Data $Data
+     * @param string $name
      * @param string|array|callable $value
      */
     protected function _assignNameValue(Data $Data, $name, $value)
