@@ -88,6 +88,18 @@ class RequestCommand
     }
 
     /**
+     * @param bool $debug
+     *
+     * @return $this
+     */
+    public function xdebug($debug = true)
+    {
+        $this->RequestCest->xdebug = $debug;
+
+        return $this;
+    }
+
+    /**
      * @param $data
      *
      * @return $this

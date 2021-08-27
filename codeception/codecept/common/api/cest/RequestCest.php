@@ -100,6 +100,11 @@ class RequestCest
     public $isOnlyLast = false;
 
     /**
+     * @var bool
+     */
+    public $xdebug = false;
+
+    /**
      * @var callable
      */
     protected $sendCallback;
