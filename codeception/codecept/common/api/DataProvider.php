@@ -385,6 +385,12 @@ class DataProvider
     {
         $Data->data = $Data->param;
 
+        foreach ($Data->data as $key => $data) {
+            if (is_callable($data)) {
+                $this->_assignNameValue($Data, $key, $data());
+            }
+        }
+
         if (isset($this->paramCallbackList[$Data->dataId])) {
             foreach ($this->paramCallbackList[$Data->dataId] as $callable) {
                 $this->_assignValues($Data, $callable());

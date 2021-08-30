@@ -37,6 +37,11 @@ class CestFile
     public $fileName = '';
 
     /**
+     * @var string
+     */
+    public $dirName = '';
+
+    /**
      * @param $filePath
      */
     public function __construct($filePath)
@@ -58,5 +63,7 @@ class CestFile
         $this->fileName = substr($this->relativeFilePath, strripos($this->relativeFilePath, DIRECTORY_SEPARATOR) + 1);
 
         $this->relativeDir = substr($this->relativeFilePath, 0, strripos($this->relativeFilePath, DIRECTORY_SEPARATOR));
+
+        $this->dirName = substr($this->relativeDir, strripos($this->relativeDir, DIRECTORY_SEPARATOR) + 1);
     }
 }

@@ -148,9 +148,20 @@ class TestCest
         $RefTestMethod->setAccessible(true);
         $this->testMethodName = $RefTestMethod->getValue($Test);
 
+        if (empty($this->Cest->groupName)) {
+            $this->Cest->groupName = $this->CestFile->dirName;
+        }
+
+        if (empty($this->Cest->apiName)) {
+            $apiName = $this->CestFile->dirName . str_replace(['\\', 'Cest'], ['', ''], $this->testClassName) .
+                str_replace('action', '', $this->testMethodName);
+        } else {
+            $apiName = $this->Cest->apiName;
+        }
+
         return $this->RequestCest->command()
             ->groupName($this->Cest->groupName)
-            ->apiName(str_replace('\\', '', $this->testClassName) . str_replace('action', '', $this->testMethodName));
+            ->apiName($apiName);
     }
 
     /**

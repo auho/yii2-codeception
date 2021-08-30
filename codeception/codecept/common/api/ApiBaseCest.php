@@ -111,8 +111,7 @@ class ApiBaseCest
     protected function _checkCest()
     {
         if (empty($this->groupName)) {
-            $this->groupName = substr(static::class, 0, -4);
-//            throw new \Exception('group name is error');
+            throw new \Exception('cest group name is error');
         }
     }
 

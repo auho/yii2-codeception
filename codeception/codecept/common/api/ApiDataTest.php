@@ -61,16 +61,17 @@ class ApiDataTest
 
             do {
                 $maxRepeat--;
+                $NewData = clone $Data;
 
                 try {
-                    $TestCest->DataProvider->generateParam($Data);
+                    $TestCest->DataProvider->generateParam($NewData);
                 } catch (\Throwable $e) {
-                    $TestCest->ApiTester->wantToTest($TestCest->testMethodName . ' ' . $Data->wantString);
+                    $TestCest->ApiTester->wantToTest($TestCest->testMethodName . ' ' . $NewData->wantString);
 
                     $TestCest->ApiTester->assertTrue(false, $e->getMessage());
                 }
 
-                $requestWant = $this->_executeTest($TestCest, $Data);
+                $requestWant = $this->_executeTest($TestCest, $NewData);
                 $wantTo .= $requestWant;
 
                 // 如果反转测试（两次测试数据相同）
@@ -88,7 +89,7 @@ class ApiDataTest
 
     /**
      * @param TestCest $TestCest
-     * @param Data     $Data
+     * @param Data $Data
      *
      * @return string
      * @throws Exception
@@ -144,7 +145,7 @@ class ApiDataTest
 
     /**
      * @param RequestCest $RequestCest
-     * @param Data        $Data
+     * @param Data $Data
      *
      * @return Request
      */
@@ -164,8 +165,8 @@ class ApiDataTest
     /**
      * 执行可执行方法
      *
-     * @param TestCest   $TestCest
-     * @param Data       $Data
+     * @param TestCest $TestCest
+     * @param Data $Data
      * @param callable[] $callableList
      *
      * @return bool

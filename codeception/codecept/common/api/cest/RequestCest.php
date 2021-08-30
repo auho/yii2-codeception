@@ -152,8 +152,6 @@ class RequestCest
     {
         $this->_check();
 
-        $this->apiName = md5($this->apiName . $this->title);
-
         call_user_func($this->sendCallback);
     }
 
