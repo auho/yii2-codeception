@@ -178,9 +178,9 @@ class ProviderCest
     /**
      * @return $this
      */
-    public function xdebug()
+    public function xdebug($debug = true)
     {
-        $this->Provider->xdebug = true;
+        $this->Provider->xdebug = $debug;
 
         return $this;
     }
